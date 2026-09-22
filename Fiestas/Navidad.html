@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEDA NAVIDEÑA 🎄🍻 - Christmas Party VIP Pass</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tone.js for Festive Audio Synth -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Fredoka:wght@400;600;700&family=Montserrat:wght@400;600;800;900&family=Outfit:wght@400;600;800;900&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        xmas: {
+                            dark: '#08120E',        /* Midnight Green Base */
+                            card: '#10221B',        /* Dark Emerald Card */
+                            red: '#EF4444',         /* Electric Neon Red */
+                            green: '#22C55E',       /* Electric Lime Green */
+                            gold: '#FACC15',        /* Shiny Gold */
+                            cyan: '#06B6D4',        /* Ice Cyan */
+                            berry: '#9F1239'        /* Deep Red Berry */
+                        }
+                    },
+                    fontFamily: {
+                        bebas: ['"Bebas Neue"', 'sans-serif'],
+                        fredoka: ['Fredoka', 'sans-serif'],
+                        outfit: ['Outfit', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #08120E;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphism Dark Holiday Cards */
+        .xmas-card {
+            background: rgba(16, 34, 27, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.12);
+        }
+
+        .xmas-card-red {
+            background: rgba(16, 34, 27, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
+        }
+
+        .xmas-card-gold {
+            background: rgba(16, 34, 27, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(250, 204, 21, 0.35);
+            box-shadow: 0 0 25px rgba(250, 204, 21, 0.2);
+        }
+
+        /* Glow Text Effects */
+        .glow-red {
+            text-shadow: 0 0 10px #EF4444, 0 0 25px #DC2626;
+        }
+
+        .glow-green {
+            text-shadow: 0 0 10px #22C55E, 0 0 25px #16A34A;
+        }
+
+        .glow-gold {
+            text-shadow: 0 0 10px #FACC15, 0 0 25px #CA8A04;
+        }
+
+        /* Animated Pulsing VIP Button */
+        @keyframes xmasGlow {
+            0% {
+                box-shadow: 0 0 15px #EF4444, 0 0 30px #22C55E;
+            }
+
+            50% {
+                box-shadow: 0 0 25px #22C55E, 0 0 45px #FACC15;
+            }
+
+            100% {
+                box-shadow: 0 0 15px #EF4444, 0 0 30px #22C55E;
+            }
+        }
+
+        .btn-xmas-pulse {
+            animation: xmasGlow 2.2s infinite;
+        }
+
+        /* Snowfall canvas overlay */
+        #snow-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen relative flex flex-col items-center justify-between selection:bg-xmas-red selection:text-white">
+
+    <!-- Snowfall Animation Canvas -->
+    <canvas id="snow-canvas"></canvas>
+
+    <!-- Music Toggle Button -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Toggle Party Audio"
+        class="fixed top-5 right-5 z-50 bg-xmas-card/90 hover:bg-xmas-red text-white p-3 rounded-full shadow-2xl border border-xmas-red/50 transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i data-lucide="volume-2" class="w-5 h-5 text-xmas-green"></i>
+    </button>
+
+    <!-- INTRO COVER GIFT SCREEN -->
+    <div id="intro-screen"
+        class="fixed inset-0 z-40 bg-xmas-dark flex flex-col items-center justify-center p-4 transition-all duration-700">
+        <!-- Ambient Glowing Lights -->
+        <div
+            class="absolute w-80 h-80 bg-xmas-red/20 rounded-full filter blur-3xl -top-10 -left-10 pointer-events-none">
+        </div>
+        <div
+            class="absolute w-80 h-80 bg-xmas-green/20 rounded-full filter blur-3xl -bottom-10 -right-10 pointer-events-none">
+        </div>
+
+        <div class="text-center mb-6 px-4 relative z-10">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-xmas-red/20 border border-xmas-red/50 text-xmas-gold text-xs font-mono mb-3">
+                <span class="w-2 h-2 rounded-full bg-xmas-red animate-ping"></span>
+                INVITACIÓN EXCLUSIVA VIP
+            </div>
+
+            <h1 id="cover-party-title"
+                class="font-bebas text-6xl md:text-7xl text-white glow-red uppercase tracking-wider mb-1">
+                PEDA NAVIDEÑA
+            </h1>
+            <p id="cover-subtitle" class="text-gray-300 font-sans text-sm md:text-base font-medium">
+                🎄 Posada VIP • No Cover • Ponche con Piquete 🎅🍻
+            </p>
+        </div>
+
+        <!-- Open Gift Action Card -->
+        <div class="w-full max-w-sm cursor-pointer group px-4 text-center relative z-10" onclick="openInvitation()">
+            <div
+                class="xmas-card-red rounded-3xl p-6 text-center shadow-2xl group-hover:-translate-y-2 transition-all duration-300 relative overflow-hidden border-2 border-xmas-red/50">
+                <div class="text-6xl mb-3 animate-bounce">🎁</div>
+                <h3 class="font-fredoka text-2xl text-white mb-1">¡ABRIR REGALO!</h3>
+                <p class="text-xs text-gray-300 mb-6">Toca el botón para destapar la ubicación, reglas y pases</p>
+
+                <div
+                    class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-xmas-red via-xmas-berry to-xmas-green text-white font-bold font-sans text-xs rounded-2xl btn-xmas-pulse tracking-widest uppercase shadow-2xl">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-xmas-gold"></i>
+                    <span>ENTRAR A LA FIESTA 🔥</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION CONTENT -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto min-h-screen bg-xmas-dark shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x border-xmas-green/20">
+
+        <!-- HERO BANNER SECTION -->
+        <section
+            class="relative min-h-[75vh] flex flex-col justify-between items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(8,18,14,0.4), rgba(8,18,14,0.98)), url('https://images.unsplash.com/photo-1543589077-47d51992270f?auto=format&fit=crop&w=1000&q=80');">
+
+            <div class="pt-6 relative z-10">
+                <span
+                    class="px-4 py-1.5 rounded-full bg-xmas-green/20 border border-xmas-green text-xmas-green font-mono text-xs uppercase tracking-widest inline-block mb-3">
+                    🎄 FIESTA DE FIN DE AÑO & POSADA
+                </span>
+
+                <h1 id="hero-title"
+                    class="font-bebas text-6xl md:text-7xl text-white glow-red my-1 leading-none uppercase">
+                    PEDA NAVIDEÑA 2026
+                </h1>
+
+                <p id="hero-organizers" class="text-xmas-gold font-semibold text-sm md:text-base mt-2">
+                    Organizado por: <span class="text-white font-bold" id="organizers-list">Santi & Sofi</span>
+                </p>
+            </div>
+
+            <div class="my-auto py-4 relative z-10 w-full max-w-xs">
+                <div class="xmas-card-gold rounded-2xl p-4 text-center">
+                    <p class="text-xs text-xmas-gold font-mono uppercase mb-1">📅 FECHA DE LA POSADA</p>
+                    <p id="party-date-display" class="font-fredoka text-2xl text-white">Viernes, 18 de Diciembre</p>
+                    <p id="party-time-display" class="text-xs text-xmas-green font-bold mt-1">⏰ A partir de las 8:00 PM
+                    </p>
+                </div>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="pb-2 animate-bounce text-xmas-red">
+                <i data-lucide="chevron-down" class="w-8 h-8 mx-auto"></i>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER SECTION -->
+        <section class="px-6 py-8 text-center bg-xmas-card/60 border-y border-xmas-green/20">
+            <p class="text-xs font-mono text-xmas-green uppercase tracking-widest mb-1">⏱️ CONTEO REGRESIVO</p>
+            <h2 class="font-fredoka text-2xl text-white mb-5">El Desmadre Navideño Empieza En:</h2>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+                <div class="xmas-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="font-bebas text-3xl text-xmas-green">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-0.5 uppercase">Días</span>
+                </div>
+                <div class="xmas-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="font-bebas text-3xl text-xmas-green">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-0.5 uppercase">Horas</span>
+                </div>
+                <div class="xmas-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="font-bebas text-3xl text-xmas-green">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-0.5 uppercase">Min</span>
+                </div>
+                <div class="xmas-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="font-bebas text-3xl text-xmas-green">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-0.5 uppercase">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PARTY BADGES & RULES -->
+        <section class="px-6 py-8 space-y-4">
+            <h2 class="font-bebas text-4xl text-white text-center glow-green tracking-wide mb-6">REGLAS DE LA POSADA 📜
+            </h2>
+
+            <div class="grid grid-cols-2 gap-3 text-left">
+                <div class="xmas-card-red rounded-2xl p-4 border-l-4 border-xmas-red">
+                    <div class="text-2xl mb-1">🧥</div>
+                    <h4 class="font-bold text-white text-xs uppercase">Ugly Sweater / Dress Code</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Trae tu gorro de Santa o Ugly Sweater para las fotos.</p>
+                </div>
+
+                <div class="xmas-card rounded-2xl p-4 border-l-4 border-xmas-green">
+                    <div class="text-2xl mb-1">🍾</div>
+                    <h4 class="font-bold text-white text-xs uppercase">BYOB / Trae tu Chupe</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Ponemos ponche con piquete, hielos y botana. Tu traes la
+                        botella.</p>
+                </div>
+
+                <div class="xmas-card-gold rounded-2xl p-4 border-l-4 border-xmas-gold">
+                    <div class="text-2xl mb-1">🍵</div>
+                    <h4 class="font-bold text-white text-xs uppercase">Ponche con Piquete</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Ponche tradicional caliente para la bienvenida.</p>
+                </div>
+
+                <div class="xmas-card rounded-2xl p-4 border-l-4 border-xmas-cyan">
+                    <div class="text-2xl mb-1">🚫</div>
+                    <h4 class="font-bold text-white text-xs uppercase">Cero Grinch / Mala Copas</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Solo gente con buena vibra lista para celebrar el año.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPECIAL ACTIVITIES SPOTLIGHT -->
+        <section class="px-6 py-8 bg-xmas-card/80 border-y border-xmas-green/20">
+            <div class="text-center mb-6">
+                <span
+                    class="px-3 py-1 rounded-full bg-xmas-red/20 border border-xmas-red text-xmas-red font-mono text-[10px] uppercase tracking-widest inline-block mb-2">
+                    🎁 DINÁMICAS NAVIDEÑAS
+                </span>
+                <h2 class="font-fredoka text-3xl text-white">¡Lo Que Habrá en la Fiesta! 🎉</h2>
+                <p class="text-xs text-gray-300 mt-1">Prepárate para las sorpresas de la noche:</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="xmas-card-red rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">🧥</span>
+                    <h4 class="font-fredoka text-xmas-gold text-sm">Concurso Ugly Sweater</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">Premio al suéter o outfit navideño más épico.</p>
+                </div>
+
+                <div class="xmas-card rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">🧪</span>
+                    <h4 class="font-fredoka text-xmas-green text-sm">Shots del Grinch</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">Shots verdes de cortesía en la entrada.</p>
+                </div>
+
+                <div class="xmas-card-gold rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">🎁</span>
+                    <h4 class="font-fredoka text-xmas-gold text-sm">Intercambio Sorpresa</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">Regalo de broma / secreto (Opcional $100-$150 max).</p>
+                </div>
+
+                <div class="xmas-card rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">🎧</span>
+                    <h4 class="font-fredoka text-xmas-cyan text-sm">Perreo Navideño</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">DJ set con lo mejor del reggaeton viejito y actual.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOCATION & GOOGLE MAPS SECTION -->
+        <section class="px-6 py-8">
+            <div class="xmas-card-red rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-xmas-red/20 flex items-center justify-center text-xmas-red mb-3 border border-xmas-red">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                </div>
+
+                <span class="font-mono text-[10px] text-xmas-gold uppercase tracking-widest">UBICACIÓN DE LA
+                    POSADA</span>
+                <h3 id="location-name" class="font-fredoka text-2xl text-white my-1">Casa de Santi & Sofi (Villa
+                    Navideña VIP)</h3>
+                <p id="location-address" class="text-xs text-gray-300 mb-6 leading-relaxed">
+                    Av. de los Renos #1225, Col. Bosques del Norte, CDMX
+                </p>
+
+                <!-- MAP ACTION BUTTON -->
+                <a id="gmaps-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-4 px-6 bg-gradient-to-r from-xmas-red via-red-600 to-xmas-berry hover:opacity-90 text-white font-bold text-xs font-mono uppercase rounded-xl transition duration-300 shadow-2xl">
+                    <i data-lucide="navigation" class="w-4 h-4"></i>
+                    <span>ABRIR EN GOOGLE MAPS</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ITINERARY TIMELINE -->
+        <section class="px-6 py-8 bg-xmas-card/50 border-y border-xmas-green/20">
+            <h2 class="font-mono text-[10px] text-xmas-gold tracking-widest text-center uppercase mb-1">TIMELINE DE LA
+                POSADA</h2>
+            <p class="font-bebas text-4xl text-white text-center mb-6">LINEUP NAVIDEÑO 🎅</p>
+
+            <div class="relative border-l-2 border-xmas-green/40 ml-4 md:ml-8 space-y-6">
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-xmas-green"></div>
+                    <span class="font-mono text-[11px] text-xmas-green">08:00 PM</span>
+                    <h4 class="font-bold text-white text-sm">Bienvenida & Ponche de Honor 🍵</h4>
+                    <p class="text-xs text-gray-400">Recepcion de invitados, entrega de pases y shots Grinch.</p>
+                </div>
+
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-xmas-red"></div>
+                    <span class="font-mono text-[11px] text-xmas-red">10:00 PM</span>
+                    <h4 class="font-bold text-white text-sm">Concurso Ugly Sweaters & Fotos 📸</h4>
+                    <p class="text-xs text-gray-400">Pasarela y votación del mejor look navideño.</p>
+                </div>
+
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-xmas-gold"></div>
+                    <span class="font-mono text-[11px] text-xmas-gold">11:30 PM</span>
+                    <h4 class="font-bold text-white text-sm">Intercambio Sorpresa & Brindis 🥂</h4>
+                    <p class="text-xs text-gray-400">Entrega de regalos y brindis grupal.</p>
+                </div>
+
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-xmas-cyan"></div>
+                    <span class="font-mono text-[11px] text-xmas-cyan">01:00 AM</span>
+                    <h4 class="font-bold text-white text-sm">Perreo Hasta el Amanecer 🎧</h4>
+                    <p class="text-xs text-gray-400">Pista abierta, DJ set y comida de medianoche.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DUAL WHATSAPP RSVP FORM -->
+        <section class="px-6 py-10">
+            <div class="xmas-card rounded-3xl p-6 text-center border-2 border-xmas-green/40">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 border border-emerald-500">
+                    <i data-lucide="message-square" class="w-6 h-6"></i>
+                </div>
+                <h2 class="font-bebas text-4xl text-white mb-1">CONFIRMA TU ASISTENCIA</h2>
+                <p class="text-xs text-gray-300 mb-6">Confirma para entrar en la lista oficial de la entrada</p>
+
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-[11px] font-mono text-xmas-green uppercase mb-1">Tu Nombre Completo
+                            *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Carlos Mendoza"
+                            class="w-full px-4 py-3 rounded-xl bg-xmas-dark border border-xmas-green/50 focus:ring-2 focus:ring-xmas-green text-white outline-none text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-mono text-xmas-green uppercase mb-1">¿Asistirás?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl bg-xmas-dark border border-xmas-green/50 focus:ring-2 focus:ring-xmas-green text-white outline-none text-sm">
+                                <option value="¡Obvio sí voy con todo el espíritu navideño!">¡Obvio sí voy! 🎄</option>
+                                <option value="Lamentablemente no podré ir">No podré ir 💔</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-mono text-xmas-green uppercase mb-1">Acompañantes</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl bg-xmas-dark border border-xmas-green/50 focus:ring-2 focus:ring-xmas-green text-white outline-none text-sm">
+                                <option value="Voy Solo/a">Voy Solo/a</option>
+                                <option value="Voy +1 acompañante">Voy +1</option>
+                                <option value="Voy +2 acompañantes">Voy +2</option>
+                                <option value="Grupo de 4+ personas">Grupo de 4+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-mono text-xmas-green uppercase mb-1">¿Qué vas a llevar /
+                            cooperar? 🍾</label>
+                        <input type="text" id="guest-bringing" placeholder="Ej. Botella de Ron / Hielos / Botana"
+                            class="w-full px-4 py-3 rounded-xl bg-xmas-dark border border-xmas-green/50 focus:ring-2 focus:ring-xmas-green text-white outline-none text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-mono text-xmas-green uppercase mb-1">Pide tu canción al DJ
+                            🎧</label>
+                        <input type="text" id="song-request" placeholder="Ej. Feliz Navidad - Remix Perreo"
+                            class="w-full px-4 py-3 rounded-xl bg-xmas-dark border border-xmas-green/50 focus:ring-2 focus:ring-xmas-green text-white outline-none text-sm">
+                    </div>
+
+                    <!-- DUAL CONTACT SELECTOR -->
+                    <div>
+                        <label class="block text-[11px] font-mono text-xmas-gold uppercase mb-2">Enviar confirmación a:
+                            *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-xmas-green/40 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-xmas-dark">
+                                <input type="radio" name="organizer" value="contact1" checked
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact1-label-name">Santi</p>
+                                    <p class="text-[10px] text-xmas-cyan" id="contact1-label-role">Organizador 1</p>
+                                </div>
+                            </label>
+
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-xmas-green/40 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-xmas-dark">
+                                <input type="radio" name="organizer" value="contact2"
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact2-label-name">Sofi</p>
+                                    <p class="text-[10px] text-xmas-cyan" id="contact2-label-role">Organizadora 2</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-xmas-green hover:opacity-95 text-stone-950 font-bold font-mono rounded-xl shadow-2xl transition duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest mt-4">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>ENVIAR CONFIRMACIÓN POR WHATSAPP</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-8 text-center bg-xmas-dark border-t border-xmas-green/20 text-white px-4">
+            <p id="footer-party-title" class="font-bebas text-3xl text-xmas-red tracking-wider">PEDA NAVIDEÑA 2026</p>
+            <p class="font-mono text-[10px] text-gray-500 mt-1">🎄 ¡FELICES FIESTAS Y SALUD! 🍻</p>
+        </footer>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           CONFIGURACIÓN GLOBAL DE LA PEDA NAVIDEÑA
+           ========================================================================== */
+        const CONFIG = {
+            partyTitle: "PEDA NAVIDEÑA",
+            organizers: "Santi & Sofi",
+            dateISO: "2026-12-18T20:00:00", // YYYY-MM-DDTHH:MM:SS
+            dateText: "Viernes, 18 de Diciembre",
+            timeText: "8:00 PM en adelante",
+
+            location: {
+                name: "Casa de Santi & Sofi (Villa Navideña VIP)",
+                address: "Av. de los Renos #1225, Col. Bosques del Norte, CDMX",
+                mapUrl: "https://maps.google.com/?q=CDMX"
+            },
+
+            // CONTACTOS DUALES DE WHATSAPP CON CÓDIGO DE PAÍS
+            contact1: {
+                name: "Santi",
+                role: "Organizador 1",
+                phone: "5215512345678" // Código de país sin '+' (Ejemplo México: 521...)
+            },
+            contact2: {
+                name: "Sofi",
+                role: "Organizadora 2",
+                phone: "5215512345679"
+            }
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        // Apply Configuration To Elements
+        function applyConfig() {
+            document.getElementById('cover-party-title').innerText = CONFIG.partyTitle;
+            document.getElementById('hero-title').innerText = CONFIG.partyTitle;
+            document.getElementById('footer-party-title').innerText = CONFIG.partyTitle;
+            document.getElementById('organizers-list').innerText = CONFIG.organizers;
+
+            document.getElementById('party-date-display').innerText = CONFIG.dateText;
+            document.getElementById('party-time-display').innerText = `⏰ A partir de las ${CONFIG.timeText}`;
+
+            document.getElementById('location-name').innerText = CONFIG.location.name;
+            document.getElementById('location-address').innerText = CONFIG.location.address;
+            document.getElementById('gmaps-link').href = CONFIG.location.mapUrl;
+
+            // WhatsApp Contacts Labels
+            document.getElementById('contact1-label-name').innerText = CONFIG.contact1.name;
+            document.getElementById('contact1-label-role').innerText = CONFIG.contact1.role;
+
+            document.getElementById('contact2-label-name').innerText = CONFIG.contact2.name;
+            document.getElementById('contact2-label-role').innerText = CONFIG.contact2.role;
+        }
+
+        // Open Invitation Action
+        function openInvitation() {
+            const introScreen = document.getElementById('intro-screen');
+            const mainContent = document.getElementById('main-content');
+
+            introScreen.style.transform = 'translateY(-100vh)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 700);
+
+            startHolidayAudioSynth();
+
+            confetti({
+                particleCount: 160,
+                spread: 100,
+                origin: { y: 0.6 },
+                colors: ['#EF4444', '#22C55E', '#FACC15', '#ffffff']
+            });
+        }
+
+        // Festive Audio Synth via Tone.js
+        function startHolidayAudioSynth() {
+            try {
+                Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -10;
+
+                // Christmas Jingle Rhythm Notes
+                const notes = ["E4", "E4", "E4", "E4", "E4", "E4", "E4", "G4", "C4", "D4", "E4"];
+                let noteIndex = 0;
+
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease(notes[noteIndex % notes.length], "8n", time);
+                    noteIndex++;
+                }, "0.35s");
+
+                Tone.Transport.bpm.value = 120;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+            } catch (e) {
+                console.log("Audio synth error:", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startHolidayAudioSynth();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+            }
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.dateISO).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-fredoka text-xl text-xmas-green">¡LA POSADA YA EMPEZÓ! 🎄🍻</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Snowfall Particle Animation
+        function initSnowfall() {
+            const canvas = document.getElementById('snow-canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const numFlakes = 50;
+            const flakes = [];
+
+            for (let i = 0; i < numFlakes; i++) {
+                flakes.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 3 + 1,
+                    d: Math.random() * numFlakes,
+                    opacity: Math.random() * 0.7 + 0.3
+                });
+            }
+
+            function drawSnow() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                for (let i = 0; i < numFlakes; i++) {
+                    const f = flakes[i];
+                    ctx.moveTo(f.x, f.y);
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+                }
+                ctx.fill();
+                updateSnow();
+            }
+
+            let angle = 0;
+            function updateSnow() {
+                angle += 0.01;
+                for (let i = 0; i < numFlakes; i++) {
+                    const f = flakes[i];
+                    f.y += Math.cos(angle + f.d) + 1 + f.r / 2;
+                    f.x += Math.sin(angle) * 1;
+
+                    if (f.y > height) {
+                        flakes[i] = { x: Math.random() * width, y: 0, r: f.r, d: f.d, opacity: f.opacity };
+                    }
+                }
+            }
+
+            function animateSnow() {
+                drawSnow();
+                requestAnimationFrame(animateSnow);
+            }
+
+            animateSnow();
+        }
+
+        // Send RSVP via WhatsApp
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const bringing = document.getElementById('guest-bringing').value.trim();
+            const song = document.getElementById('song-request').value.trim();
+            const selectedContact = document.querySelector('input[name="organizer"]:checked').value;
+
+            let targetPhone = CONFIG.contact1.phone;
+            let targetName = CONFIG.contact1.name;
+
+            if (selectedContact === 'contact2') {
+                targetPhone = CONFIG.contact2.phone;
+                targetName = CONFIG.contact2.name;
+            }
+
+            // Formatted text message with Christmas details
+            let textMessage = `*CONFIRMACIÓN - ${CONFIG.partyTitle.toUpperCase()}* 🎄🍻\n\n`;
+            textMessage += `Hola *${targetName}*, confirmo mi asistencia a la posada:\n\n`;
+            textMessage += `👤 *Invitado:* ${name}\n`;
+            textMessage += `🎄 *Estatus:* ${attendance}\n`;
+            textMessage += `🎟️ *Cupo / Pases:* ${passes}\n`;
+            if (bringing !== "") {
+                textMessage += `🍾 *Voy a llevar:* ${bringing}\n`;
+            }
+            if (song !== "") {
+                textMessage += `🎧 *Canción para el DJ:* ${song}\n`;
+            }
+            textMessage += `\n¡Listo para la posada y el ponche! 🎅🔥`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
+
+            confetti({
+                particleCount: 130,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#22C55E', '#EF4444', '#FACC15']
+            });
+
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 400);
+        }
+
+        // On Window Load
+        window.onload = function () {
+            applyConfig();
+            updateCountdown();
+            initSnowfall();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+
+</html>

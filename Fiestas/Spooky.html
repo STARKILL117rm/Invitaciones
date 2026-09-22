@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PEDA DE DISFRACES 🎃🍻 - Costume Party Pass</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tone.js for Party Audio Synth -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Grotesk:wght@400;600;700;800&family=Montserrat:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        party: {
+                            black: '#0B0B0E',
+                            card: '#14131B',
+                            purple: '#A855F7',
+                            neonmagenta: '#EC4899',
+                            toxicgreen: '#22C55E',
+                            cybercyan: '#06B6D4',
+                            yellowglow: '#FACC15',
+                            redpulse: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        marker: ['"Permanent Marker"', 'cursive'],
+                        space: ['"Space Grotesk"', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #0B0B0E;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphism Party Card */
+        .party-card {
+            background: rgba(20, 19, 27, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.15);
+        }
+
+        .party-card-green {
+            background: rgba(20, 19, 27, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 0 25px rgba(34, 197, 94, 0.15);
+        }
+
+        .party-card-magenta {
+            background: rgba(20, 19, 27, 0.85);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            box-shadow: 0 0 25px rgba(236, 72, 153, 0.2);
+        }
+
+        /* Text Neon Glow Effects */
+        .neon-purple-text {
+            text-shadow: 0 0 8px #A855F7, 0 0 20px #9333EA;
+        }
+
+        .neon-green-text {
+            text-shadow: 0 0 8px #22C55E, 0 0 20px #16A34A;
+        }
+
+        .neon-magenta-text {
+            text-shadow: 0 0 8px #EC4899, 0 0 20px #DB2777;
+        }
+
+        /* Pulsing Glow Animation */
+        @keyframes partyGlow {
+            0% {
+                box-shadow: 0 0 15px #A855F7, 0 0 30px #EC4899;
+            }
+
+            50% {
+                box-shadow: 0 0 25px #22C55E, 0 0 45px #A855F7;
+            }
+
+            100% {
+                box-shadow: 0 0 15px #A855F7, 0 0 30px #EC4899;
+            }
+        }
+
+        .btn-party-pulse {
+            animation: partyGlow 2.5s infinite;
+        }
+
+        /* Floating Emojis background */
+        @keyframes floatEmoji {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: translateY(-30px) rotate(15deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.3;
+            }
+        }
+
+        .floating-emoji {
+            position: absolute;
+            pointer-events: none;
+            animation: floatEmoji 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen relative flex flex-col items-center justify-between selection:bg-party-neonmagenta selection:text-white">
+
+    <!-- Floating Emojis Background -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <span class="floating-emoji text-3xl top-12 left-5" style="animation-delay: 0s;">🎃</span>
+        <span class="floating-emoji text-2xl top-1/4 right-6" style="animation-delay: 1.5s;">🍻</span>
+        <span class="floating-emoji text-4xl top-1/2 left-8" style="animation-delay: 3s;">👻</span>
+        <span class="floating-emoji text-3xl top-3/4 right-8" style="animation-delay: 0.8s;">🔊</span>
+        <span class="floating-emoji text-2xl bottom-12 left-10" style="animation-delay: 2.2s;">🍹</span>
+        <span class="floating-emoji text-3xl bottom-1/3 right-1/4" style="animation-delay: 4s;">🕷️</span>
+    </div>
+
+    <!-- Music Toggle Button -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Party Music Toggle"
+        class="fixed top-5 right-5 z-50 bg-party-card/90 hover:bg-party-purple text-white p-3 rounded-full shadow-2xl border border-party-purple/50 transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i data-lucide="volume-2" class="w-5 h-5 text-party-toxicgreen"></i>
+    </button>
+
+    <!-- INTRO COVER PASS SCREEN -->
+    <div id="intro-screen"
+        class="fixed inset-0 z-40 bg-party-black flex flex-col items-center justify-center p-4 transition-all duration-700">
+        <!-- Ambient Glowing Lights -->
+        <div
+            class="absolute w-72 h-72 bg-party-purple/20 rounded-full filter blur-3xl -top-10 -left-10 pointer-events-none">
+        </div>
+        <div
+            class="absolute w-72 h-72 bg-party-neonmagenta/20 rounded-full filter blur-3xl -bottom-10 -right-10 pointer-events-none">
+        </div>
+
+        <div class="text-center mb-6 px-4 relative z-10">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-party-purple/20 border border-party-purple/50 text-party-toxicgreen text-xs font-mono mb-3">
+                <span class="w-2 h-2 rounded-full bg-party-toxicgreen animate-ping"></span>
+                PARTY VIP PASS
+            </div>
+
+            <h1 id="cover-party-title"
+                class="font-marker text-5xl md:text-6xl text-white neon-magenta-text uppercase tracking-wider mb-2">
+                PEDA DE DISFRACES
+            </h1>
+            <p id="cover-subtitle" class="text-gray-300 font-sans text-sm md:text-base font-medium">
+                🎃 Costume House Party • No Cover • BYOB 🍻
+            </p>
+        </div>
+
+        <!-- Enter Button Card -->
+        <div class="w-full max-w-sm cursor-pointer group px-4 text-center relative z-10" onclick="openInvitation()">
+            <div
+                class="party-card rounded-3xl p-6 text-center shadow-2xl group-hover:-translate-y-2 transition-all duration-300 relative overflow-hidden border-2 border-party-purple/50">
+                <div class="text-5xl mb-3 animate-bounce">🎟️</div>
+                <h3 class="font-marker text-2xl text-white mb-1">¡ACCE$O EXCLUSIVO!</h3>
+                <p class="text-xs text-gray-400 mb-6">Presiona el botón para desbloquear la ubicación y detalles</p>
+
+                <div
+                    class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-party-purple via-party-neonmagenta to-party-toxicgreen text-white font-bold font-sans text-xs rounded-2xl btn-party-pulse tracking-widest uppercase shadow-2xl">
+                    <i data-lucide="zap" class="w-4 h-4 text-party-yellowglow"></i>
+                    <span>PULSAR PARA ENTRAR 🍹</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION BODY -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto min-h-screen bg-party-black shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x border-party-purple/20">
+
+        <!-- HERO SECTION -->
+        <section
+            class="relative min-h-[70vh] flex flex-col justify-between items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(11,11,14,0.4), rgba(11,11,14,0.98)), url('https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=80');">
+
+            <div class="pt-6 relative z-10">
+                <span
+                    class="px-4 py-1.5 rounded-full bg-party-toxicgreen/20 border border-party-toxicgreen text-party-toxicgreen font-mono text-xs uppercase tracking-widest inline-block mb-3">
+                    🔥 HALLOWEEN COSTUME PARTY
+                </span>
+
+                <h1 id="hero-title"
+                    class="font-marker text-5xl md:text-6xl text-white neon-purple-text my-2 leading-tight uppercase">
+                    PEDA DE DISFRACES 2026
+                </h1>
+
+                <p id="hero-organizer" class="text-party-cybercyan font-semibold text-sm md:text-base mt-2">
+                    Organizado por: <span class="text-white font-bold" id="organizers-list">Julio</span>
+                </p>
+            </div>
+
+            <div class="my-auto py-4 relative z-10 w-full max-w-xs">
+                <div class="party-card-magenta rounded-2xl p-4 text-center">
+                    <p class="text-xs text-party-yellowglow font-mono uppercase mb-1">📅 FECHA DE LA FIESTA</p>
+                    <p id="party-date-display" class="font-marker text-2xl text-white">Sábado, 31 de Octubre</p>
+                    <p id="party-time-display" class="text-xs text-party-toxicgreen font-bold mt-1">⏰ A partir de las
+                        8:30 PM</p>
+                </div>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="pb-2 animate-bounce text-party-purple">
+                <i data-lucide="chevron-down" class="w-8 h-8 mx-auto"></i>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER -->
+        <section class="px-6 py-8 text-center bg-party-card/60 border-y border-party-purple/20">
+            <p class="text-xs font-mono text-party-toxicgreen uppercase tracking-widest mb-1">⏱️ TIEMPO RESTANTE</p>
+            <h2 class="font-marker text-2xl text-white mb-5">El Desmadre Empieza En:</h2>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 max-w-sm mx-auto">
+                <div class="party-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="font-marker text-2xl text-party-toxicgreen">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-1 uppercase">Días</span>
+                </div>
+                <div class="party-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="font-marker text-2xl text-party-toxicgreen">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-1 uppercase">Horas</span>
+                </div>
+                <div class="party-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="font-marker text-2xl text-party-toxicgreen">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-1 uppercase">Min</span>
+                </div>
+                <div class="party-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="font-marker text-2xl text-party-toxicgreen">00</span>
+                    <span class="text-[9px] font-mono text-gray-400 mt-1 uppercase">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOUSE RULES BADGES -->
+        <section class="px-6 py-8 space-y-4">
+            <h2 class="font-marker text-3xl text-white text-center neon-green-text mb-6">REGULACIONES DE LA CASA 📜</h2>
+
+            <div class="grid grid-cols-2 gap-3 text-left">
+                <div class="party-card rounded-2xl p-4 border-l-4 border-party-neonmagenta">
+                    <div class="text-2xl mb-1">🎭</div>
+                    <h4 class="font-bold text-white text-xs uppercase">Disfraz Obligatorio</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">El que venga sin disfraz paga multa de shots o no entra.
+                    </p>
+                </div>
+
+                <div class="party-card rounded-2xl p-4 border-l-4 border-party-toxicgreen">
+                    <div class="text-2xl mb-1">🍾</div>
+                    <h4 class="font-bold text-white text-xs uppercase">BYOB / Trae tu Chupe</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Nosotros ponemos casa, y musica.</p>
+                </div>
+
+                <div class="party-card rounded-2xl p-4 border-l-4 border-party-yellowglow">
+                    <div class="text-2xl mb-1">🚫</div>
+                    <h4 class="font-bold text-white text-xs uppercase">Cero Mala Copas</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Ven con actitud a perrear y pasarla bien. Mala copa fuera.
+                    </p>
+                </div>
+
+                <div class="party-card rounded-2xl p-4 border-l-4 border-party-cybercyan">
+                    <div class="text-2xl mb-1">🆔</div>
+                    <h4 class="font-bold text-white text-xs uppercase">Lista de Invitados</h4>
+                    <p class="text-[11px] text-gray-300 mt-1">Solo entran personas confirmadas en la lista de WhatsApp.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- COSTUME CONTEST SECTION -->
+        <section class="px-6 py-8 bg-party-card/80 border-y border-party-purple/20">
+            <div class="text-center mb-6">
+                <span
+                    class="px-3 py-1 rounded-full bg-party-neonmagenta/20 border border-party-neonmagenta text-party-neonmagenta font-mono text-[10px] uppercase tracking-widest inline-block mb-2">
+                    🏆 CONCURSO DE DISFRACES
+                </span>
+                <h2 class="font-marker text-3xl text-white">¡Habrá Premios y Botellas! 🍾</h2>
+                <p class="text-xs text-gray-300 mt-1">Se premiará a los mejores disfraces en las siguientes categorías:
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="party-card-magenta rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">👑</span>
+                    <h4 class="font-marker text-party-yellowglow text-sm">El Más Perrón</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">El mejor disfraz elaborado y épico de la noche.</p>
+                </div>
+
+                <div class="party-card-green rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">😂</span>
+                    <h4 class="font-marker text-party-toxicgreen text-sm">El Más Chistoso</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">El que haga reír a todos en la fiesta.</p>
+                </div>
+
+                <div class="party-card-magenta rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">🔥</span>
+                    <h4 class="font-marker text-party-neonmagenta text-sm">El Más Hot / Sexy</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">El look más candente de la fiesta.</p>
+                </div>
+
+                <div class="party-card rounded-2xl p-4 text-center">
+                    <span class="text-3xl block mb-1">👩‍❤️‍👨</span>
+                    <h4 class="font-marker text-party-cybercyan text-sm">Mejor En Pareja</h4>
+                    <p class="text-[10px] text-gray-300 mt-1">El duo o combo más original.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOCATION SECTION WITH GOOGLE MAPS -->
+        <section class="px-6 py-8">
+            <div class="party-card-green rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-party-toxicgreen/20 flex items-center justify-center text-party-toxicgreen mb-3 border border-party-toxicgreen">
+                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                </div>
+
+                <span class="font-mono text-[10px] text-party-toxicgreen uppercase tracking-widest">UBICACIÓN DEL
+                    DESMADRE</span>
+                <h3 id="location-name" class="font-marker text-2xl text-white my-1">Casa de Julio (La Casa de los
+                    Muertos Vivientes)</h3>
+                <p id="location-address" class="text-xs text-gray-300 mb-6 leading-relaxed">
+                    Av. de las Fiestas #404, Col. Jardines del Perreo, CDMX
+                </p>
+
+                <!-- MAP BUTTON -->
+                <a id="gmaps-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-4 px-6 bg-gradient-to-r from-party-toxicgreen via-emerald-500 to-teal-500 hover:opacity-90 text-stone-950 font-bold text-xs font-mono uppercase rounded-xl transition duration-300 shadow-2xl">
+                    <i data-lucide="navigation" class="w-4 h-4"></i>
+                    <span>ABRIR EN GOOGLE MAPS</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ITINERARY / TIMELINE -->
+        <section class="px-6 py-8 bg-party-card/50 border-y border-party-purple/20">
+            <h2 class="font-mono text-[10px] text-party-cybercyan tracking-widest text-center uppercase mb-1">CRONOGRAMA
+                DE LA NIGHT</h2>
+            <p class="font-marker text-3xl text-white text-center mb-6">Lineup de Actividades 🔊</p>
+
+            <div class="relative border-l-2 border-party-purple/50 ml-4 md:ml-8 space-y-6">
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-party-toxicgreen"></div>
+                    <span class="font-mono text-[11px] text-party-toxicgreen">08:30 PM</span>
+                    <h4 class="font-bold text-white text-sm">Check-in & Shots de Bienvenida 🍸</h4>
+                    <p class="text-xs text-gray-400">Llegada de invitados, fotos de disfraz y shots en la entrada.</p>
+                </div>
+
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-party-neonmagenta"></div>
+                    <span class="font-mono text-[11px] text-party-neonmagenta">10:00 PM</span>
+                    <h4 class="font-bold text-white text-sm">DJ Set & Perreo Intenso 🎧</h4>
+                    <p class="text-xs text-gray-400">Reggaeton viejito, bellakath, techno y lo más sonado.</p>
+                </div>
+
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-party-yellowglow"></div>
+                    <span class="font-mono text-[11px] text-party-yellowglow">11:30 PM</span>
+                    <h4 class="font-bold text-white text-sm">Gran Concurso de Disfraces 👑</h4>
+                    <p class="text-xs text-gray-400">Pasarela, aplausómetro y entrega de botellas a los ganadores.</p>
+                </div>
+
+                <div class="relative pl-6">
+                    <div class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-party-cybercyan"></div>
+                    <span class="font-mono text-[11px] text-party-cybercyan">01:30 AM</span>
+                    <h4 class="font-bold text-white text-sm">Hora del Bajón / Tacos & Snacks 🍕</h4>
+                    <p class="text-xs text-gray-400">Comida para revivir y seguir la fiesta hasta el amanecer.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DUAL WHATSAPP CONFIRMATION (RSVP) -->
+        <section class="px-6 py-10">
+            <div class="party-card rounded-3xl p-6 text-center border-2 border-party-purple/40">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 border border-emerald-500">
+                    <i data-lucide="message-square" class="w-6 h-6"></i>
+                </div>
+                <h2 class="font-marker text-3xl text-white mb-1">Confirma tu Asistencia</h2>
+                <p class="text-xs text-gray-300 mb-6">Asegura tu lugar en la lista antes de que se llene el cupo</p>
+
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-[11px] font-mono text-party-toxicgreen uppercase mb-1">Tu Nombre
+                            Completo *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Mateo Hernández"
+                            class="w-full px-4 py-3 rounded-xl bg-party-black border border-party-purple/50 focus:ring-2 focus:ring-party-toxicgreen text-white outline-none text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-mono text-party-toxicgreen uppercase mb-1">¿Vas a ir?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl bg-party-black border border-party-purple/50 focus:ring-2 focus:ring-party-toxicgreen text-white outline-none text-sm">
+                                <option value="¡Obvio sí voy con todo el combo!">¡Obvio sí voy! 🔥</option>
+                                <option value="Lamentablemente no podré ir">No podré ir 💔</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-mono text-party-toxicgreen uppercase mb-1">Acompañantes</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl bg-party-black border border-party-purple/50 focus:ring-2 focus:ring-party-toxicgreen text-white outline-none text-sm">
+                                <option value="Voy Solo/a">Voy Solo/a</option>
+                                <option value="Voy +1 acompañante">Voy +1</option>
+                                <option value="Voy +2 acompañantes">Voy +2</option>
+                                <option value="Grupo de 4+ personas">Grupo de 4+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-mono text-party-toxicgreen uppercase mb-1">¿De qué te vas a
+                            disfrazar? 🎭</label>
+                        <input type="text" id="costume-idea" placeholder="Ej. Joker / Pirata / Merlina"
+                            class="w-full px-4 py-3 rounded-xl bg-party-black border border-party-purple/50 focus:ring-2 focus:ring-party-toxicgreen text-white outline-none text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-mono text-party-toxicgreen uppercase mb-1">Pide tu canción
+                            al DJ 🎧</label>
+                        <input type="text" id="song-request" placeholder="Ej. Safaera - Bad Bunny"
+                            class="w-full px-4 py-3 rounded-xl bg-party-black border border-party-purple/50 focus:ring-2 focus:ring-party-toxicgreen text-white outline-none text-sm">
+                    </div>
+
+                    <!-- DUAL CONTACT SELECTOR -->
+                    <div>
+                        <label class="block text-[11px] font-mono text-party-yellowglow uppercase mb-2">Avisar y
+                            confirmar con: *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-party-purple/40 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-party-black">
+                                <input type="radio" name="organizer" value="contact1" checked
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact1-label-name">Santi</p>
+                                    <p class="text-[10px] text-party-cybercyan" id="contact1-label-role">Organizador 1
+                                    </p>
+                                </div>
+                            </label>
+
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-party-purple/40 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-party-black">
+                                <input type="radio" name="organizer" value="contact2"
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact2-label-name">Dani</p>
+                                    <p class="text-[10px] text-party-cybercyan" id="contact2-label-role">Organizadora 2
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-party-toxicgreen hover:opacity-95 text-stone-950 font-bold font-mono rounded-xl shadow-2xl transition duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest mt-4">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span>ENVIAR CONFIRMACIÓN POR WHATSAPP</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-8 text-center bg-party-black border-t border-party-purple/20 text-white px-4">
+            <p id="footer-party-title" class="font-marker text-2xl text-party-neonmagenta">PEDA DE DISFRACES 2026</p>
+            <p class="font-mono text-[10px] text-gray-500 mt-1">🎃 ¡NO TE LA PUEDES PERDER! 🎃</p>
+        </footer>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           CONFIGURACIÓN GLOBAL DE LA FIESTA DE DISFRACES
+           ========================================================================== */
+        const CONFIG = {
+            partyTitle: "PEDA DE DISFRACES",
+            organizers: "Santi & Dani",
+            dateISO: "2026-10-31T20:30:00", // YYYY-MM-DDTHH:MM:SS
+            dateText: "Sábado, 31 de Octubre",
+            timeText: "8:30 PM en adelante",
+
+            location: {
+                name: "Casa de Santi (La Casa de las Brujas)",
+                address: "Av. de las Fiestas #404, Col. Jardines del Perreo, CDMX",
+                mapUrl: "https://maps.google.com/?q=CDMX"
+            },
+
+            // CONTACTOS DUALES DE WHATSAPP CON CÓDIGO DE PAÍS
+            contact1: {
+                name: "Santi",
+                role: "Organizador 1",
+                phone: "5215512345678" // Formato internacional sin '+' (Ejemplo México: 521...)
+            },
+            contact2: {
+                name: "Dani",
+                role: "Organizadora 2",
+                phone: "5215512345679"
+            }
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        // Apply Configuration To Elements
+        function applyConfig() {
+            document.getElementById('cover-party-title').innerText = CONFIG.partyTitle;
+            document.getElementById('hero-title').innerText = CONFIG.partyTitle;
+            document.getElementById('footer-party-title').innerText = CONFIG.partyTitle;
+            document.getElementById('organizers-list').innerText = CONFIG.organizers;
+
+            document.getElementById('party-date-display').innerText = CONFIG.dateText;
+            document.getElementById('party-time-display').innerText = `⏰ A partir de las ${CONFIG.timeText}`;
+
+            document.getElementById('location-name').innerText = CONFIG.location.name;
+            document.getElementById('location-address').innerText = CONFIG.location.address;
+            document.getElementById('gmaps-link').href = CONFIG.location.mapUrl;
+
+            // WhatsApp Contacts
+            document.getElementById('contact1-label-name').innerText = CONFIG.contact1.name;
+            document.getElementById('contact1-label-role').innerText = CONFIG.contact1.role;
+
+            document.getElementById('contact2-label-name').innerText = CONFIG.contact2.name;
+            document.getElementById('contact2-label-role').innerText = CONFIG.contact2.role;
+        }
+
+        // Open Invitation
+        function openInvitation() {
+            const introScreen = document.getElementById('intro-screen');
+            const mainContent = document.getElementById('main-content');
+
+            introScreen.style.transform = 'translateY(-100vh)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 700);
+
+            startPartyAudioSynth();
+
+            confetti({
+                particleCount: 150,
+                spread: 90,
+                origin: { y: 0.6 },
+                colors: ['#A855F7', '#EC4899', '#22C55E', '#06B6D4', '#FACC15']
+            });
+        }
+
+        // Party Beat Audio Synth via Tone.js
+        function startPartyAudioSynth() {
+            try {
+                Tone.start();
+                const synth = new Tone.MembraneSynth().toDestination();
+                synth.volume.value = -12;
+
+                // Electro-party rhythmic beat loop
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease("C1", "8n", time);
+                }, "0.5s");
+
+                Tone.Transport.bpm.value = 125;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+            } catch (e) {
+                console.log("Audio synth error:", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startPartyAudioSynth();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+            }
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.dateISO).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-marker text-lg text-party-toxicgreen">¡LA PEDA YA EMPEZÓ! 🎃🍻</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Send RSVP via WhatsApp
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const costume = document.getElementById('costume-idea').value.trim();
+            const song = document.getElementById('song-request').value.trim();
+            const selectedContact = document.querySelector('input[name="organizer"]:checked').value;
+
+            let targetPhone = CONFIG.contact1.phone;
+            let targetName = CONFIG.contact1.name;
+
+            if (selectedContact === 'contact2') {
+                targetPhone = CONFIG.contact2.phone;
+                targetName = CONFIG.contact2.name;
+            }
+
+            // Formatted text message with party details
+            let textMessage = `*CONFIRMACIÓN - ${CONFIG.partyTitle.toUpperCase()}* 🎃🍻\n\n`;
+            textMessage += `Hola *${targetName}*, confirmo mi asistencia:\n\n`;
+            textMessage += `👤 *Invitado:* ${name}\n`;
+            textMessage += `🔥 *Estatus:* ${attendance}\n`;
+            textMessage += `🎟️ *Cupo / Pases:* ${passes}\n`;
+            if (costume !== "") {
+                textMessage += `🎭 *Mi Disfraz:* ${costume}\n`;
+            }
+            if (song !== "") {
+                textMessage += `🎧 *Canción para el DJ:* ${song}\n`;
+            }
+            textMessage += `\n¡Listo para el perreo y el concurso! 🎃🚀`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
+
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.5 },
+                colors: ['#22C55E', '#A855F7', '#EC4899']
+            });
+
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 400);
+        }
+
+        // On Window Load
+        window.onload = function () {
+            applyConfig();
+            updateCountdown();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+
+</html>

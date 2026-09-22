@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenvy — Catálogo de Invitaciones Digitales</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="./LogoZenvy.jpeg">
+
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Tipografías elegantes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --zenvy-bg: #f5efe6;
+            --zenvy-card-bg: #fcf9f2;
+            --zenvy-dark: #2c2523;
+            --zenvy-muted: #6e645e;
+            --zenvy-brown: #8c6d53;
+            --zenvy-border: #e3d9c9;
+            --zenvy-gold: #c5a059;
+            --whatsapp-color: #25d366;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--zenvy-bg);
+            color: var(--zenvy-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Fondo Superior Difuminado */
+        .hero-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 550px;
+            background: url('./PortadaZenvy.jpeg') center top / cover no-repeat;
+            z-index: 0;
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 0) 100%);
+            opacity: 0.9;
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 25px 35px 45px 35px;
+            background: linear-gradient(to bottom, rgba(44, 37, 35, 0.85) 0%, rgba(44, 37, 35, 0.65) 60%, rgba(44, 37, 35, 0) 100%), url('./PortadaZenvy.jpeg') center/cover no-repeat;
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--zenvy-border);
+            background-color: #ffffff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .brand-logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #f5efe6;
+            text-transform: uppercase;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .brand-subtitle {
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            color: #e3d9c9;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        main {
+            position: relative;
+            z-index: 10;
+            margin-top: 80px;
+        }
+
+        /* Botones de Filtro */
+        .filter-btn {
+            background-color: transparent;
+            border: 1px solid var(--zenvy-border);
+            color: var(--zenvy-dark);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--zenvy-dark);
+            color: #ffffff;
+            border-color: var(--zenvy-dark);
+        }
+
+        /* Carrusel Estable y Fluido */
+        .cards-carousel-container {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 15px 10px 25px 10px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            cursor: grab;
+        }
+
+        .cards-carousel-container:active {
+            cursor: grabbing;
+        }
+
+        .cards-carousel-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .card-item {
+            flex: 0 0 290px;
+            max-width: 290px;
+            position: relative;
+        }
+
+        .card-zenvy {
+            background-color: var(--zenvy-card-bg);
+            border: 1px solid var(--zenvy-border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-zenvy:hover {
+            transform: translateY(-6px);
+            border-color: var(--zenvy-brown);
+            box-shadow: 0 12px 25px rgba(44, 37, 35, 0.1) !important;
+        }
+
+        /* Badge Dinámico */
+        .card-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--zenvy-gold);
+            color: #ffffff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            z-index: 2;
+            display: none;
+        }
+
+        .icon-box {
+            width: 55px;
+            height: 55px;
+            background-color: rgba(140, 109, 83, 0.1);
+            color: var(--zenvy-brown);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 1.2rem auto;
+        }
+
+        /* Estrellas Interactivas */
+        .rating-stars {
+            color: var(--zenvy-border);
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .rating-stars i.active {
+            color: var(--zenvy-gold);
+        }
+
+        .btn-zenvy {
+            background-color: var(--zenvy-dark);
+            color: var(--zenvy-bg);
+            border: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 12px 20px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-zenvy:hover {
+            background-color: var(--zenvy-brown);
+            color: #ffffff;
+        }
+
+        .btn-zenvy-outline {
+            background-color: transparent;
+            color: var(--zenvy-dark);
+            border: 1px solid var(--zenvy-dark);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 22px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-zenvy-outline:hover {
+            background-color: var(--zenvy-dark);
+            color: #ffffff;
+        }
+
+        .carousel-btn-nav {
+            background-color: var(--zenvy-dark);
+            color: var(--zenvy-bg);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .carousel-btn-nav:hover {
+            background-color: var(--zenvy-brown);
+            color: #ffffff;
+        }
+
+        /* Ventajas */
+        .feature-card {
+            background-color: #ffffff;
+            border: 1px solid var(--zenvy-border);
+            border-radius: 10px;
+            padding: 25px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--zenvy-brown);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--zenvy-brown);
+            margin-bottom: 12px;
+        }
+
+        /* Reseñas */
+        .review-card {
+            background-color: var(--zenvy-card-bg);
+            border: 1px solid var(--zenvy-border);
+            border-radius: 10px;
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(rgba(44, 37, 35, 0.75), rgba(44, 37, 35, 0.85)), url('./PortadaZenvy.jpeg') center/cover no-repeat;
+            color: #f5efe6;
+            border-top: 2px solid var(--zenvy-brown);
+        }
+
+        .footer-social-link {
+            color: rgba(245, 239, 230, 0.6);
+            font-size: 1.4rem;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+            display: inline-block;
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .footer-social-link:hover {
+            color: rgba(245, 239, 230, 1);
+            transform: translateY(-2px);
+        }
+
+        .modal-zenvy-content {
+            background-color: var(--zenvy-card-bg);
+            border: 1px solid var(--zenvy-border);
+            border-radius: 12px;
+            color: var(--zenvy-dark);
+        }
+
+        .btn-contact-whatsapp {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #ffffff;
+            border: 1px solid var(--zenvy-border);
+            color: var(--zenvy-dark);
+            padding: 14px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-contact-whatsapp:hover {
+            background-color: rgba(37, 211, 102, 0.08);
+            border-color: var(--whatsapp-color);
+            color: var(--zenvy-dark);
+            transform: translateY(-2px);
+        }
+
+        .interactive-star-input i {
+            font-size: 1.5rem;
+            color: var(--zenvy-border);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .interactive-star-input i.active {
+            color: var(--zenvy-gold);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Fondo superior difuminado -->
+    <div class="hero-banner"></div>
+
+    <!-- Encabezado con difuminado suave -->
+    <header>
+        <div class="brand-container">
+            <div class="brand-logo-wrapper">
+                <img src="./LogoZenvy.jpeg" alt="Logo Zenvy" class="brand-logo-img">
+            </div>
+            <div class="brand-text-group">
+                <h1 class="brand-title">Zenvy</h1>
+                <span class="brand-subtitle">Invitaciones Digitales</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección Principal del Catálogo -->
+    <main class="container-fluid px-4 px-md-5 pb-4">
+
+        <!-- Título y Subtítulo Centrados -->
+        <div class="text-center mb-4">
+            <h2 class="font-serif h3 mb-1">Colección de Invitaciones</h2>
+            <p class="text-muted small mb-3">Desliza para explorar todos nuestros diseños interactivos</p>
+
+            <!-- Filtros por Categoría -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
+                <button class="filter-btn active" onclick="filterCategory('all', this)">Todas</button>
+                <button class="filter-btn" onclick="filterCategory('bodas-xv', this)">Bodas & XV</button>
+                <button class="filter-btn" onclick="filterCategory('sociales', this)">Sociales</button>
+                <button class="filter-btn" onclick="filterCategory('festivos', this)">Festividades</button>
+            </div>
+        </div>
+
+        <!-- Carrusel Horizontal Arrastrable -->
+        <div class="cards-carousel-container" id="carouselContainer">
+
+            <!-- Card 3 Años -->
+            <div class="card-item" data-id="3anos" data-category="sociales">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-balloon"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">3 Años</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('3anos', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Plantilla para celebración infantil de 3 años.
+                            </p>
+                        </div>
+                        <a href="./3%20a%C3%B1os/Prueba.html" class="btn btn-zenvy w-100"
+                            onclick="trackClick('3anos')">Ver Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Bautizo -->
+            <div class="card-item" data-id="bautizo" data-category="sociales">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-stars"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">Bautizo</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('bautizo', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Diseño delicado para ceremonias y recepciones de
+                                bautizo.</p>
+                        </div>
+                        <a href="./Bautizo/Prueba.html" class="btn btn-zenvy w-100" onclick="trackClick('bautizo')">Ver
+                            Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Boda -->
+            <div class="card-item" data-id="boda" data-category="bodas-xv">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-gem"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">Boda</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('boda', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Estilo sofisticado y romántico para bodas
+                                nupciales.</p>
+                        </div>
+                        <a href="./Boda/Prueba.html" class="btn btn-zenvy w-100" onclick="trackClick('boda')">Ver
+                            Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card XV Años -->
+            <div class="card-item" data-id="xv" data-category="bodas-xv">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-award"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">XV Años</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('xv', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Diseño moderno y elegante para celebraciones de
+                                quinceañeras.</p>
+                        </div>
+                        <a href="./XV/Prueba.html" class="btn btn-zenvy w-100" onclick="trackClick('xv')">Ver
+                            Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Amor y Amistad -->
+            <div class="card-item" data-id="amoryamistad" data-category="festivos">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-heart"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">Amor y Amistad</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('amoryamistad', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Temática especial de San Valentín o día del amor
+                                y la amistad.</p>
+                        </div>
+                        <a href="./Fiestas/AmoryAmistad.html" class="btn btn-zenvy w-100"
+                            onclick="trackClick('amoryamistad')">Ver Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Navidad -->
+            <div class="card-item" data-id="navidad" data-category="festivos">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-gift"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">Navidad</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('navidad', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Diseño festivo pensado para eventos de fin de
+                                año.</p>
+                        </div>
+                        <a href="./Fiestas/Navidad.html" class="btn btn-zenvy w-100" onclick="trackClick('navidad')">Ver
+                            Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Spooky -->
+            <div class="card-item" data-id="spooky" data-category="festivos">
+                <span class="card-badge">MÁS POPULAR</span>
+                <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
+                    <div class="card-body d-flex flex-column justify-content-between p-0">
+                        <div>
+                            <div class="icon-box"><i class="bi bi-moon-stars"></i></div>
+                            <h3 class="font-serif h4 card-title mb-1">Spooky</h3>
+
+                            <div class="rating-stars mb-2" onclick="rateItem('spooky', event)">
+                                <i class="bi bi-star-fill" data-star="1"></i>
+                                <i class="bi bi-star-fill" data-star="2"></i>
+                                <i class="bi bi-star-fill" data-star="3"></i>
+                                <i class="bi bi-star-fill" data-star="4"></i>
+                                <i class="bi bi-star-fill" data-star="5"></i>
+                                <span class="text-muted small ms-1 rating-count" style="font-size:0.75rem;">(0)</span>
+                            </div>
+
+                            <p class="card-text text-muted small mb-4">Temática para eventos nocturnos y fiestas de
+                                Halloween.</p>
+                        </div>
+                        <a href="./Fiestas/Spooky.html" class="btn btn-zenvy w-100" onclick="trackClick('spooky')">Ver
+                            Invitación</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Botones de Navegación Centrados Abajo -->
+        <div class="d-flex justify-content-center gap-3 mt-3 mb-5">
+            <button class="carousel-btn-nav" id="btnPrev" aria-label="Anterior">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button class="carousel-btn-nav" id="btnNext" aria-label="Siguiente">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Beneficios -->
+        <section class="container my-5 py-4">
+            <div class="text-center mb-4">
+                <h3 class="font-serif h2 mb-1">¿Qué incluyen nuestras invitaciones?</h3>
+                <p class="text-muted small">Experiencias interactivas diseñadas para cautivar a tus invitados</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <i class="bi bi-geo-alt feature-icon"></i>
+                        <h4 class="h6 fw-bold mb-1">Ubicación GPS</h4>
+                        <p class="text-muted small mb-0" style="font-size: 0.75rem;">Enlace a Google Maps y Waze para
+                            llegar sin perderse.</p>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <i class="bi bi-music-note-beamed feature-icon"></i>
+                        <h4 class="h6 fw-bold mb-1">Música de Fondo</h4>
+                        <p class="text-muted small mb-0" style="font-size: 0.75rem;">Ambientación musical personalizada
+                            para tu evento.</p>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <i class="bi bi-clock-history feature-icon"></i>
+                        <h4 class="h6 fw-bold mb-1">Contador Regresivo</h4>
+                        <p class="text-muted small mb-0" style="font-size: 0.75rem;">Temporizador dinámico en tiempo
+                            real.</p>
+                    </div>
+                </div>
+
+                <div class="col-6 col-md-3">
+                    <div class="feature-card h-100">
+                        <i class="bi bi-check2-circle feature-icon"></i>
+                        <h4 class="h6 fw-bold mb-1">RSVP WhatsApp</h4>
+                        <p class="text-muted small mb-0" style="font-size: 0.75rem;">Confirmación de asistencia
+                            instantánea a tu chat.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reseñas -->
+        <section class="container my-5 py-3">
+            <div class="text-center mb-4">
+                <h3 class="font-serif h2 mb-1">Opiniones de nuestros clientes</h3>
+                <p class="text-muted small mb-3">Descubre lo que opinan sobre la experiencia Zenvy</p>
+
+                <button type="button" class="btn btn-zenvy-outline" data-bs-toggle="modal"
+                    data-bs-target="#reviewModal">
+                    <i class="bi bi-pencil-square me-1"></i> Escribir una reseña
+                </button>
+            </div>
+
+            <div class="row g-3 justify-content-center" id="reviewsContainer">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="py-4 text-center text-light small">
+        <div class="container d-flex flex-column align-items-center justify-content-center gap-2">
+            <div class="d-flex gap-4 align-items-center">
+                <a href="https://www.facebook.com/profile.php?id=61594868241564" target="_blank"
+                    class="footer-social-link" title="Facebook" aria-label="Facebook">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <button type="button" class="footer-social-link" data-bs-toggle="modal" data-bs-target="#whatsappModal"
+                    title="WhatsApp" aria-label="WhatsApp">
+                    <i class="bi bi-whatsapp"></i>
+                </button>
+            </div>
+            <p class="mb-0 fw-medium text-center">&copy; Zenvy. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modal WhatsApp -->
+    <div class="modal fade" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-zenvy-content p-3 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-serif fs-4" id="whatsappModalLabel">Contactar por WhatsApp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-4">Selecciona el contacto con el que deseas comunicarte:</p>
+
+                    <div class="d-flex flex-column gap-3">
+                        <a href="https://wa.me/qr/4PEBRG433OCUK1" target="_blank" class="btn-contact-whatsapp">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-whatsapp fs-4 text-success"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">Ing. Kimberly Hernandez</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">Atención y Ventas</div>
+                                </div>
+                            </div>
+                            <i class="bi bi-arrow-right-short fs-4 text-muted"></i>
+                        </a>
+
+                        <a href="https://wa.me/qr/PASDSQMQH7K5A1" target="_blank" class="btn-contact-whatsapp">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-whatsapp fs-4 text-success"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold">Ing. Roman Mendez</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">Desarrollador y Atención
+                                    </div>
+                                </div>
+                            </div>
+                            <i class="bi bi-arrow-right-short fs-4 text-muted"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Reseña -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-zenvy-content p-3 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title font-serif fs-4" id="reviewModalLabel">Déjanos tu opinión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm" onsubmit="submitReview(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Tu Nombre</label>
+                            <input type="text" class="form-control" id="authorInput" placeholder="Ej. María López"
+                                required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Calificación</label>
+                            <div class="interactive-star-input d-flex gap-2" id="starInputContainer">
+                                <i class="bi bi-star-fill active" data-score="1" onclick="setFormStars(1)"></i>
+                                <i class="bi bi-star-fill active" data-score="2" onclick="setFormStars(2)"></i>
+                                <i class="bi bi-star-fill active" data-score="3" onclick="setFormStars(3)"></i>
+                                <i class="bi bi-star-fill active" data-score="4" onclick="setFormStars(4)"></i>
+                                <i class="bi bi-star-fill active" data-score="5" onclick="setFormStars(5)"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">¿Qué fue lo que más te gustó?</label>
+                            <textarea class="form-control" id="commentInput" rows="3"
+                                placeholder="Escribe tu experiencia con Zenvy..." required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-zenvy w-100 mt-2">Publicar Reseña</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lógica JavaScript Optimizado para GitHub / Producción -->
+    <script>
+        const container = document.getElementById('carouselContainer');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+
+        const cardStep = 314; // Ancho (290px) + Gap (24px)
+        let isMoving = false;
+
+        // Navegación hacia adelante sin saltos
+        function shiftNext() {
+            if (isMoving) return;
+            isMoving = true;
+
+            container.scrollBy({ left: cardStep, behavior: 'smooth' });
+
+            setTimeout(() => {
+                const firstCard = container.querySelector('.card-item');
+                container.appendChild(firstCard);
+                container.scrollLeft -= cardStep;
+                isMoving = false;
+            }, 350);
+        }
+
+        // Navegación hacia atrás sin saltos ni rebotes
+        function shiftPrev() {
+            if (isMoving) return;
+            isMoving = true;
+
+            const cards = container.querySelectorAll('.card-item');
+            const lastCard = cards[cards.length - 1];
+
+            // Mueve el último al inicio silenciosamente
+            container.insertBefore(lastCard, cards[0]);
+            container.scrollLeft += cardStep;
+
+            // Realiza el deslizamiento fluido hacia la izquierda
+            setTimeout(() => {
+                container.scrollBy({ left: -cardStep, behavior: 'smooth' });
+            }, 20);
+
+            setTimeout(() => {
+                isMoving = false;
+            }, 370);
+        }
+
+        btnNext.addEventListener('click', shiftNext);
+        btnPrev.addEventListener('click', shiftPrev);
+
+        // Arrastre manual en pantallas táctiles y escritorio
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+        });
+
+        container.addEventListener('mouseleave', () => { isDown = false; });
+        container.addEventListener('mouseup', () => { isDown = false; });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            container.scrollLeft = scrollLeft - walk;
+        });
+
+        // Filtros por Categoría
+        function filterCategory(category, element) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+
+            const cards = container.querySelectorAll('.card-item');
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+        }
+
+        // Calificaciones y Clicks Reales
+        function getStoredData() {
+            return JSON.parse(localStorage.getItem('zenvy_data') || '{}');
+        }
+
+        function saveStoredData(data) {
+            localStorage.setItem('zenvy_data', JSON.stringify(data));
+        }
+
+        function updateUI() {
+            const data = getStoredData();
+            let maxInteractions = 0;
+            let topId = null;
+
+            document.querySelectorAll('.card-item').forEach(card => {
+                const id = card.dataset.id;
+                const itemData = data[id] || { clicks: 0, votes: 0, sumStars: 0, userStar: 0 };
+
+                const starsContainer = card.querySelector('.rating-stars');
+                const stars = starsContainer.querySelectorAll('i');
+                const avg = itemData.votes > 0 ? Math.round(itemData.sumStars / itemData.votes) : itemData.userStar;
+
+                stars.forEach(star => {
+                    const val = parseInt(star.dataset.star);
+                    if (val <= avg) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+
+                card.querySelector('.rating-count').innerText = `(${itemData.votes})`;
+
+                const totalScore = (itemData.clicks * 2) + (itemData.votes * 3);
+                if (totalScore > maxInteractions && totalScore > 0) {
+                    maxInteractions = totalScore;
+                    topId = id;
+                }
+            });
+
+            document.querySelectorAll('.card-item').forEach(card => {
+                const badge = card.querySelector('.card-badge');
+                if (topId && card.dataset.id === topId) {
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            });
+
+            renderReviews();
+        }
+
+        function rateItem(id, event) {
+            const star = event.target.closest('i');
+            if (!star) return;
+
+            const ratingVal = parseInt(star.dataset.star);
+            const data = getStoredData();
+
+            if (!data[id]) {
+                data[id] = { clicks: 0, votes: 0, sumStars: 0, userStar: 0 };
+            }
+
+            data[id].votes += 1;
+            data[id].sumStars += ratingVal;
+            data[id].userStar = ratingVal;
+
+            saveStoredData(data);
+            updateUI();
+        }
+
+        function trackClick(id) {
+            const data = getStoredData();
+            if (!data[id]) {
+                data[id] = { clicks: 0, votes: 0, sumStars: 0, userStar: 0 };
+            }
+            data[id].clicks += 1;
+            saveStoredData(data);
+        }
+
+        // Modal de Reseñas y Comentarios
+        let currentSelectedScore = 5;
+
+        function setFormStars(score) {
+            currentSelectedScore = score;
+            const icons = document.querySelectorAll('#starInputContainer i');
+            icons.forEach(icon => {
+                const val = parseInt(icon.dataset.score);
+                if (val <= score) {
+                    icon.classList.add('active');
+                } else {
+                    icon.classList.remove('active');
+                }
+            });
+        }
+
+        function getStoredReviews() {
+            return JSON.parse(localStorage.getItem('zenvy_reviews') || '[]');
+        }
+
+        function submitReview(e) {
+            e.preventDefault();
+            const author = document.getElementById('authorInput').value.trim();
+            const comment = document.getElementById('commentInput').value.trim();
+
+            if (!author || !comment) return;
+
+            const newReview = {
+                author: author,
+                comment: comment,
+                stars: currentSelectedScore,
+                date: new Date().toLocaleDateString()
+            };
+
+            const reviews = getStoredReviews();
+            reviews.unshift(newReview);
+            localStorage.setItem('zenvy_reviews', JSON.stringify(reviews));
+
+            document.getElementById('reviewForm').reset();
+            setFormStars(5);
+            const modalEl = document.getElementById('reviewModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            modalInstance.hide();
+
+            renderReviews();
+        }
+
+        function renderReviews() {
+            const reviews = getStoredReviews();
+            const container = document.getElementById('reviewsContainer');
+
+            if (reviews.length === 0) {
+                container.innerHTML = `
+          <div class="col-12 text-center text-muted small py-3">
+            Sé el primero en publicar una reseña sobre Zenvy.
+          </div>`;
+                return;
+            }
+
+            let html = '';
+            reviews.forEach(r => {
+                let starHtml = '';
+                for (let i = 1; i <= 5; i++) {
+                    starHtml += `<i class="bi bi-star-fill ${i <= r.stars ? 'text-warning' : 'text-secondary opacity-25'}"></i>`;
+                }
+
+                html += `
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="review-card shadow-sm">
+              <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <div class="small">${starHtml}</div>
+                  <span class="text-muted" style="font-size:0.7rem;">${r.date}</span>
+                </div>
+                <p class="text-muted small mb-3">"${r.comment}"</p>
+              </div>
+              <span class="fw-bold small text-dark">— ${r.author}</span>
+            </div>
+          </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', updateUI);
+    </script>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

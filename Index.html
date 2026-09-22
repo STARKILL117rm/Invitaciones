@@ -6,15 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zenvy — Catálogo de Invitaciones Digitales</title>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/jpeg" href="./LogoZenvy.jpeg">
 
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <!-- Tipografías elegantes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -141,7 +137,7 @@
             border-color: var(--zenvy-dark);
         }
 
-        /* Carrusel Estable y Fluido */
+        /* Carrusel Deslizable sin Barra Visible */
         .cards-carousel-container {
             display: flex;
             gap: 24px;
@@ -261,27 +257,6 @@
             color: #ffffff;
         }
 
-        .carousel-btn-nav {
-            background-color: var(--zenvy-dark);
-            color: var(--zenvy-bg);
-            border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .carousel-btn-nav:hover {
-            background-color: var(--zenvy-brown);
-            color: #ffffff;
-        }
-
         /* Ventajas */
         .feature-card {
             background-color: #ffffff;
@@ -385,10 +360,8 @@
 
 <body>
 
-    <!-- Fondo superior difuminado -->
     <div class="hero-banner"></div>
 
-    <!-- Encabezado con difuminado suave -->
     <header>
         <div class="brand-container">
             <div class="brand-logo-wrapper">
@@ -401,15 +374,12 @@
         </div>
     </header>
 
-    <!-- Sección Principal del Catálogo -->
     <main class="container-fluid px-4 px-md-5 pb-4">
 
-        <!-- Título y Subtítulo Centrados -->
         <div class="text-center mb-4">
             <h2 class="font-serif h3 mb-1">Colección de Invitaciones</h2>
             <p class="text-muted small mb-3">Desliza para explorar todos nuestros diseños interactivos</p>
 
-            <!-- Filtros por Categoría -->
             <div class="d-flex flex-wrap justify-content-center gap-2 mb-2">
                 <button class="filter-btn active" onclick="filterCategory('all', this)">Todas</button>
                 <button class="filter-btn" onclick="filterCategory('bodas-xv', this)">Bodas & XV</button>
@@ -418,10 +388,8 @@
             </div>
         </div>
 
-        <!-- Carrusel Horizontal Arrastrable -->
         <div class="cards-carousel-container" id="carouselContainer">
 
-            <!-- Card 3 Años -->
             <div class="card-item" data-id="3anos" data-category="sociales">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -448,7 +416,6 @@
                 </div>
             </div>
 
-            <!-- Card Bautizo -->
             <div class="card-item" data-id="bautizo" data-category="sociales">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -475,7 +442,6 @@
                 </div>
             </div>
 
-            <!-- Card Boda -->
             <div class="card-item" data-id="boda" data-category="bodas-xv">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -502,7 +468,6 @@
                 </div>
             </div>
 
-            <!-- Card XV Años -->
             <div class="card-item" data-id="xv" data-category="bodas-xv">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -529,7 +494,6 @@
                 </div>
             </div>
 
-            <!-- Card Amor y Amistad -->
             <div class="card-item" data-id="amoryamistad" data-category="festivos">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -556,7 +520,6 @@
                 </div>
             </div>
 
-            <!-- Card Navidad -->
             <div class="card-item" data-id="navidad" data-category="festivos">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -583,7 +546,6 @@
                 </div>
             </div>
 
-            <!-- Card Spooky -->
             <div class="card-item" data-id="spooky" data-category="festivos">
                 <span class="card-badge">MÁS POPULAR</span>
                 <div class="card card-zenvy h-100 p-4 text-center shadow-sm">
@@ -612,17 +574,6 @@
 
         </div>
 
-        <!-- Botones de Navegación Centrados Abajo -->
-        <div class="d-flex justify-content-center gap-3 mt-3 mb-5">
-            <button class="carousel-btn-nav" id="btnPrev" aria-label="Anterior">
-                <i class="bi bi-chevron-left"></i>
-            </button>
-            <button class="carousel-btn-nav" id="btnNext" aria-label="Siguiente">
-                <i class="bi bi-chevron-right"></i>
-            </button>
-        </div>
-
-        <!-- Beneficios -->
         <section class="container my-5 py-4">
             <div class="text-center mb-4">
                 <h3 class="font-serif h2 mb-1">¿Qué incluyen nuestras invitaciones?</h3>
@@ -668,7 +619,6 @@
             </div>
         </section>
 
-        <!-- Reseñas -->
         <section class="container my-5 py-3">
             <div class="text-center mb-4">
                 <h3 class="font-serif h2 mb-1">Opiniones de nuestros clientes</h3>
@@ -681,13 +631,11 @@
             </div>
 
             <div class="row g-3 justify-content-center" id="reviewsContainer">
-                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
     </main>
 
-    <!-- Pie de página -->
     <footer class="py-4 text-center text-light small">
         <div class="container d-flex flex-column align-items-center justify-content-center gap-2">
             <div class="d-flex gap-4 align-items-center">
@@ -704,7 +652,6 @@
         </div>
     </footer>
 
-    <!-- Modal WhatsApp -->
     <div class="modal fade" id="whatsappModal" tabindex="-1" aria-labelledby="whatsappModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content modal-zenvy-content p-3 shadow">
@@ -744,7 +691,6 @@
         </div>
     </div>
 
-    <!-- Modal Reseña -->
     <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content modal-zenvy-content p-3 shadow">
@@ -784,56 +730,10 @@
         </div>
     </div>
 
-    <!-- Lógica JavaScript Optimizado para GitHub / Producción -->
     <script>
         const container = document.getElementById('carouselContainer');
-        const btnPrev = document.getElementById('btnPrev');
-        const btnNext = document.getElementById('btnNext');
 
-        const cardStep = 314; // Ancho (290px) + Gap (24px)
-        let isMoving = false;
-
-        // Navegación hacia adelante sin saltos
-        function shiftNext() {
-            if (isMoving) return;
-            isMoving = true;
-
-            container.scrollBy({ left: cardStep, behavior: 'smooth' });
-
-            setTimeout(() => {
-                const firstCard = container.querySelector('.card-item');
-                container.appendChild(firstCard);
-                container.scrollLeft -= cardStep;
-                isMoving = false;
-            }, 350);
-        }
-
-        // Navegación hacia atrás sin saltos ni rebotes
-        function shiftPrev() {
-            if (isMoving) return;
-            isMoving = true;
-
-            const cards = container.querySelectorAll('.card-item');
-            const lastCard = cards[cards.length - 1];
-
-            // Mueve el último al inicio silenciosamente
-            container.insertBefore(lastCard, cards[0]);
-            container.scrollLeft += cardStep;
-
-            // Realiza el deslizamiento fluido hacia la izquierda
-            setTimeout(() => {
-                container.scrollBy({ left: -cardStep, behavior: 'smooth' });
-            }, 20);
-
-            setTimeout(() => {
-                isMoving = false;
-            }, 370);
-        }
-
-        btnNext.addEventListener('click', shiftNext);
-        btnPrev.addEventListener('click', shiftPrev);
-
-        // Arrastre manual en pantallas táctiles y escritorio
+        // Arrastre manual en pantallas táctiles y con mouse (Drag to Scroll)
         let isDown = false;
         let startX;
         let scrollLeft;
@@ -951,7 +851,7 @@
             saveStoredData(data);
         }
 
-        // Modal de Reseñas y Comentarios
+        // Modal de Reseñas
         let currentSelectedScore = 5;
 
         function setFormStars(score) {
@@ -1038,7 +938,6 @@
         document.addEventListener('DOMContentLoaded', updateUI);
     </script>
 
-    <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

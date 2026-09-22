@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -132,6 +132,52 @@
 
         .btn-gold-pulse {
             animation: goldPulse 2s infinite;
+        }
+    
+        /* =========================================================
+           MEDIA QUERIES RESPONSIVOS ADICIONALES - BODA
+        ========================================================= */
+
+        /* Moviles pequenos (hasta 360px) */
+        @media (max-width: 360px) {
+            html { font-size: 13px; }
+
+            #envelope-screen h1 {
+                font-size: 3.2rem !important;
+            }
+
+            #main-content section h1 {
+                font-size: 3.5rem !important;
+            }
+
+            .glass-card {
+                padding: 1.1rem !important;
+                border-radius: 1.2rem !important;
+            }
+
+            .grid.grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+
+            #countdown .grid {
+                gap: 0.3rem;
+            }
+        }
+
+        /* Tablets (481px a 900px) */
+        @media (min-width: 481px) and (max-width: 900px) {
+            #main-content {
+                max-width: 100% !important;
+                border-left: none !important;
+                border-right: none !important;
+            }
+        }
+
+        /* Escritorio (1025px en adelante) */
+        @media (min-width: 1025px) {
+            #main-content {
+                max-width: 700px !important;
+            }
         }
     </style>
 </head>

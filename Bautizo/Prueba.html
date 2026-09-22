@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -136,6 +136,53 @@
 
         .btn-pulse {
             animation: softPulse 2.2s infinite;
+        }
+    
+        /* =========================================================
+           MEDIA QUERIES RESPONSIVOS ADICIONALES - BAUTIZO
+        ========================================================= */
+
+        /* Moviles pequenos (hasta 360px) */
+        @media (max-width: 360px) {
+            html { font-size: 13px; }
+
+            #cover-baby-name,
+            #hero-baby-name {
+                font-size: 3.5rem !important;
+            }
+
+            .glass-card {
+                padding: 1.1rem !important;
+            }
+
+            .grid.grid-cols-2 {
+                grid-template-columns: 1fr !important;
+            }
+
+            #countdown .grid {
+                gap: 0.3rem;
+            }
+
+            #bank-modal .max-w-sm {
+                max-width: 95vw !important;
+                padding: 1rem !important;
+            }
+        }
+
+        /* Tablets (481px a 900px) */
+        @media (min-width: 481px) and (max-width: 900px) {
+            #main-content {
+                max-width: 100% !important;
+                border-left: none !important;
+                border-right: none !important;
+            }
+        }
+
+        /* Escritorio (1025px en adelante) */
+        @media (min-width: 1025px) {
+            #main-content {
+                max-width: 700px !important;
+            }
         }
     </style>
 </head>

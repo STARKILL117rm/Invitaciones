@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peda de Amor y Amistad 💘🔥</title>
+
+    <!-- Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Outfit:wght@400;700;900&display=swap"
+        rel="stylesheet">
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* =========================================================
+       VARIABLES Y FONDO ANIMADO
+    ========================================================= */
+        :root {
+            --bg-dark: #0a0307;
+            --bg-card: rgba(20, 8, 16, 0.85);
+            --neon-red: #ff2a5f;
+            --neon-pink: #ff007f;
+            --neon-purple: #b026ff;
+            --gold: #ffd700;
+            --text-light: #ffffff;
+            --text-muted: #e2bece;
+            --font-main: 'Outfit', sans-serif;
+            --font-bold: 'Montserrat', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        /* CAPAS DE FONDO ANIMADO */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -2;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(255, 42, 95, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(176, 38, 255, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(255, 0, 127, 0.15) 0%, transparent 60%);
+            filter: blur(30px);
+            animation: pulseBg 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulseBg {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+
+        /* PARTÍCULAS Y CORAZONES FLOTANTES */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .heart-particle {
+            position: absolute;
+            color: rgba(255, 42, 95, 0.25);
+            font-size: clamp(1rem, 3vw, 2rem);
+            animation: floatUp 10s linear infinite;
+            bottom: -10%;
+        }
+
+        .heart-particle:nth-child(1) {
+            left: 10%;
+            animation-duration: 9s;
+            animation-delay: 0s;
+        }
+
+        .heart-particle:nth-child(2) {
+            left: 25%;
+            animation-duration: 12s;
+            animation-delay: 2s;
+            color: rgba(255, 0, 127, 0.3);
+        }
+
+        .heart-particle:nth-child(3) {
+            left: 45%;
+            animation-duration: 8s;
+            animation-delay: 4s;
+        }
+
+        .heart-particle:nth-child(4) {
+            left: 65%;
+            animation-duration: 11s;
+            animation-delay: 1s;
+            color: rgba(176, 38, 255, 0.3);
+        }
+
+        .heart-particle:nth-child(5) {
+            left: 85%;
+            animation-duration: 10s;
+            animation-delay: 3s;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.8;
+            }
+
+            80% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* =========================================================
+       ESTILOS GENERALES Y RESPONSIVIDAD
+    ========================================================= */
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        section {
+            padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+        }
+
+        .text-neon {
+            background: linear-gradient(135deg, #ff2a5f, #ff007f, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(255, 42, 95, 0.4);
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: var(--font-bold);
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            margin-bottom: clamp(1.8rem, 4vw, 3rem);
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 42, 95, 0.35);
+            border-radius: 20px;
+            padding: clamp(1.25rem, 4vw, 2.5rem);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), inset 0 0 15px rgba(255, 42, 95, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.95rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            text-decoration: none;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .btn-neon {
+            background: linear-gradient(135deg, var(--neon-red), var(--neon-pink));
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 42, 95, 0.6);
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 30px rgba(255, 0, 127, 0.9);
+        }
+
+        /* OVERLAY DE BIENVENIDA */
+        #welcome-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #050204;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .secret-card {
+            background: linear-gradient(145deg, #1f0815, #080206);
+            border: 2px solid var(--neon-red);
+            border-radius: 24px;
+            padding: clamp(2rem, 5vw, 3.5rem) 1.25rem;
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 0 60px rgba(255, 42, 95, 0.5);
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5rem 1.25rem 2.5rem 1.25rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: rgba(255, 42, 95, 0.2);
+            border: 1px solid var(--neon-red);
+            color: var(--neon-pink);
+            padding: 0.4rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-family: var(--font-bold);
+            font-size: clamp(2.8rem, 10vw, 5.5rem);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .hero-phrase {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem auto;
+            font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+        }
+
+        /* CUENTA REGRESIVA */
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: clamp(0.4rem, 2.5vw, 1.2rem);
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .time-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 42, 95, 0.4);
+            border-radius: 16px;
+            padding: clamp(0.6rem, 2vw, 1rem);
+            min-width: clamp(70px, 18vw, 100px);
+            text-align: center;
+        }
+
+        .time-box span {
+            display: block;
+            font-family: var(--font-bold);
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            font-weight: 900;
+            color: var(--neon-pink);
+        }
+
+        .time-box label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        /* REGLAS / BADGES */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .rule-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 127, 0.25);
+            padding: 1.2rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .rule-card i {
+            font-size: 2rem;
+            color: var(--neon-red);
+            margin-bottom: 0.5rem;
+        }
+
+        /* ITINERARIO */
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .activity-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--neon-pink);
+            padding: 1.2rem;
+            border-radius: 0 16px 16px 0;
+        }
+
+        .activity-time {
+            color: var(--gold);
+            font-weight: 800;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        /* FORMULARIO RSVP */
+        .rsvp-form {
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: var(--neon-pink);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 42, 95, 0.35);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--neon-pink);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            flex: 1;
+            min-width: 110px;
+        }
+
+        .radio-option input {
+            display: none;
+        }
+
+        .radio-option label {
+            display: block;
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 42, 95, 0.35);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .radio-option input:checked+label {
+            background: var(--neon-red);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 42, 95, 0.6);
+        }
+
+        .audio-btn {
+            position: fixed;
+            bottom: 1.25rem;
+            right: 1.25rem;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--neon-red);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 42, 95, 0.7);
+            z-index: 99;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ELEMENTOS DEL FONDO ANIMADO -->
+    <div class="bg-animation"></div>
+    <div class="hearts-container">
+        <i class="fas fa-heart heart-particle"></i>
+        <i class="fas fa-heart heart-particle"></i>
+        <i class="fas fa-heart heart-particle"></i>
+        <i class="fas fa-heart heart-particle"></i>
+        <i class="fas fa-heart heart-particle"></i>
+    </div>
+
+    <!-- BOTÓN DE MÚSICA FLOTANTE -->
+    <button class="audio-btn" id="music-toggle" aria-label="Música">
+        <i class="fas fa-music"></i>
+    </button>
+
+    <!-- OVERLAY DE BIENVENIDA -->
+    <div id="welcome-overlay">
+        <div class="secret-card">
+            <div class="hero-badge">Evento Privado</div>
+            <h2 style="font-size: 2.2rem; font-weight: 900; margin-bottom: 0.5rem;">SAN VALENTÍN VIP 💘</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">¿Listo para la mejor peda de Amor y Amistad?</p>
+            <button class="btn btn-neon" id="btn-open">
+                <i class="fas fa-unlock-alt"></i> DESBLOQUEAR PEDA
+            </button>
+        </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">14 DE FEBRERO • SPECIAL PARTY</div>
+            <h1 class="hero-title text-neon">PEDA DE AMOR Y AMISTAD 🔥</h1>
+            <p class="hero-phrase">
+                Seas soltero, enredado o vengas a olvidar a tu ex... Aquí no hay espacio para malas copas.
+            </p>
+
+            <!-- CUENTA REGRESIVA -->
+            <div class="countdown-container">
+                <div class="time-box"><span id="cd-days">00</span><label>Días</label></div>
+                <div class="time-box"><span id="cd-hours">00</span><label>Horas</label></div>
+                <div class="time-box"><span id="cd-minutes">00</span><label>Min</label></div>
+                <div class="time-box"><span id="cd-seconds">00</span><label>Seg</label></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REGLAS Y BADGES DE LA PEDA -->
+    <section>
+        <div class="container">
+            <h2 class="section-title text-neon">Reglas del Juego 🚨</h2>
+            <p class="section-subtitle">Lo que tienes que saber antes de llegar</p>
+
+            <div class="rules-grid">
+                <div class="rule-card">
+                    <i class="fas fa-wine-bottle"></i>
+                    <h4 style="margin-bottom: 0.3rem;">BYOB / Trae tu Chupe</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Cerveza, tequila o lo que vayas a tomar.
+                        Ponche de bienvenida gratis.</p>
+                </div>
+
+                <div class="rule-card">
+                    <i class="fas fa-tshirt"></i>
+                    <h4 style="margin-bottom: 0.3rem;">Código de Color</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">🔴 Rojo = Soltero/a | 🟢 Verde = En una
+                        relación | 🟡 Amarillo = Complicado</p>
+                </div>
+
+                <div class="rule-card">
+                    <i class="fas fa-ban-smoking"></i>
+                    <h4 style="margin-bottom: 0.3rem;">Cero Mala Copas</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">El que se ponga necio o empiece drama con
+                        el ex se va directo a la calle.</p>
+                </div>
+
+                <div class="rule-card">
+                    <i class="fas fa-heart-broken"></i>
+                    <h4 style="margin-bottom: 0.3rem;">Shot Anti-Ex</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">Shot de cortesía en la entrada si muestras
+                        la foto de tu ex borrada.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ITINERARIO / ACTIVIDADES -->
+    <section>
+        <div class="container">
+            <h2 class="section-title text-neon">Actividades ⚡</h2>
+            <p class="section-subtitle">No va a ser una peda aburrida</p>
+
+            <div class="activity-grid">
+                <div class="activity-card">
+                    <div class="activity-time">21:00 HRS</div>
+                    <h4>Shots de Bienvenida + Cupido</h4>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">Recepción con shots y pulseras de estado
+                        civil.</p>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-time">22:30 HRS</div>
+                    <h4>Beer Pong por Parejas / Rivalidades</h4>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">Torneo relámpago con premios en alcohol.
+                    </p>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-time">00:00 HRS</div>
+                    <h4>Karaoke de Dolidos & Rancheras</h4>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">A cantar a todo pulmón para despechar el
+                        corazón.</p>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-time">01:00 HRS</div>
+                    <h4>DJ Set & Perreo Intenso</h4>
+                    <p style="font-size: 0.88rem; color: var(--text-muted);">Pista encendida hasta que el cuerpo
+                        aguante.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- UBICACIÓN Y GOOGLE MAPS -->
+    <section>
+        <div class="container">
+            <div class="glass-card" style="text-align: center;">
+                <i class="fas fa-map-marked-alt text-neon" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+                <h2 class="section-title text-neon" style="margin-bottom: 0.5rem;">Ubicación de la Peda</h2>
+                <p style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem;" id="party-venue">Casa de los
+                    Organizadores</p>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;" id="party-address">Calle de la Fiesta #777,
+                    Col. Centro</p>
+
+                <a href="#" target="_blank" id="gmaps-btn" class="btn btn-neon">
+                    <i class="fas fa-location-arrow"></i> Abrir en Google Maps
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONFIRMACIÓN DE ASISTENCIA (RSVP POR WHATSAPP) -->
+    <section id="confirmacion">
+        <div class="container">
+            <div class="glass-card rsvp-form">
+                <h2 class="section-title text-neon">Confirmar Asistencia 📲</h2>
+                <p class="section-subtitle" style="margin-bottom: 1.5rem;">Cupo limitado, confirma para quedar en lista
+                </p>
+
+                <form id="whatsapp-form">
+                    <div class="form-group">
+                        <label for="guest-name"><i class="fas fa-user"></i> Tu Nombre / Apodo</label>
+                        <input type="text" id="guest-name" class="form-control" placeholder="Ej. El Chino / Sofía"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guest-passes"><i class="fas fa-users"></i> ¿Con cuántos vas?</label>
+                        <input type="number" id="guest-passes" class="form-control" min="1" max="6" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="guest-status"><i class="fas fa-heart"></i> Tu Estado para la Fiesta</label>
+                        <select id="guest-status" class="form-control" required>
+                            <option value="Soltero/a y disponible 🔴">Soltero/a y disponible 🔴</option>
+                            <option value="En relación 🟢">En relación / Acompañado/a 🟢</option>
+                            <option value="Es complicado 🟡">Es complicado 🟡</option>
+                            <option value="Solo vengo a tomar 🍺">Solo vengo a tomar 🍺</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-paper-plane"></i> Manda tu confirmación a:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="host1" name="host" value="1" checked>
+                                <label for="host1" id="label-host1">Anfitrión 1</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="host2" name="host" value="2">
+                                <label for="host2" id="label-host2">Anfitrión 2</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-neon" style="width: 100%; max-width: 100%;">
+                            <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> Confirmar por WhatsApp
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCRIPT DE CONFIGURACIÓN Y LÓGICA -->
+    <script>
+        const CONFIG = {
+            dateISO: "2027-02-14T21:00:00",
+            venue: "Casa de la Peda VIP",
+            address: "Av. de los Enamorados #1402, Col. San Valentín",
+            gmapsUrl: "https://maps.google.com/?q=Av+los+Enamorados+1402",
+            hosts: {
+                1: { name: "Carlos (Host 1)", phone: "5215512345678" },
+                2: { name: "Daniela (Host 2)", phone: "5215587654321" }
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("party-venue").innerText = CONFIG.venue;
+            document.getElementById("party-address").innerText = CONFIG.address;
+            document.getElementById("gmaps-btn").href = CONFIG.gmapsUrl;
+
+            document.getElementById("label-host1").innerText = CONFIG.hosts[1].name;
+            document.getElementById("label-host2").innerText = CONFIG.hosts[2].name;
+
+            initCountdown();
+        });
+
+        document.getElementById("btn-open").addEventListener("click", () => {
+            const overlay = document.getElementById("welcome-overlay");
+            overlay.style.opacity = "0";
+            overlay.style.visibility = "hidden";
+
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            playAmbientSynth();
+        });
+
+        function initCountdown() {
+            const targetDate = new Date(CONFIG.dateISO).getTime();
+
+            const updateTimer = () => {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference > 0) {
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                    document.getElementById("cd-days").innerText = String(days).padStart(2, '0');
+                    document.getElementById("cd-hours").innerText = String(hours).padStart(2, '0');
+                    document.getElementById("cd-minutes").innerText = String(minutes).padStart(2, '0');
+                    document.getElementById("cd-seconds").innerText = String(seconds).padStart(2, '0');
+                }
+            };
+
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+
+        document.getElementById("whatsapp-form").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById("guest-name").value;
+            const passes = document.getElementById("guest-passes").value;
+            const status = document.getElementById("guest-status").value;
+            const selectedHost = document.querySelector('input[name="host"]:checked').value;
+            const phone = CONFIG.hosts[selectedHost].phone;
+
+            const message = `¡Qué onda! 🔥 Confirmo mi asistencia a la Peda de Amor y Amistad 💘\n\n` +
+                `👤 *Nombre:* ${name}\n` +
+                `🎟️ *Lugares:* ${passes}\n` +
+                `🏷️ *Estado:* ${status}\n\n` +
+                `¡Ya guardé mi lugar! 🎉🚀`;
+
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+
+        let audioCtx = null;
+        let isPlaying = false;
+
+        function playAmbientSynth() {
+            if (isPlaying) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                isPlaying = true;
+            } catch (e) {
+                console.log("Audio no soportado.");
+            }
+        }
+
+        document.getElementById("music-toggle").addEventListener("click", () => {
+            if (!audioCtx) {
+                playAmbientSynth();
+            } else {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                } else if (audioCtx.state === 'running') {
+                    audioCtx.suspend();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -150,6 +150,129 @@
 
         .wax-seal:hover {
             transform: scale(1.08) rotate(5deg);
+        }
+
+        /* =========================================================
+           MEDIA QUERIES RESPONSIVOS ADICIONALES
+        ========================================================= */
+
+        /* Moviles pequenos (hasta 360px) */
+        @media (max-width: 360px) {
+            html {
+                font-size: 13px;
+            }
+
+            #cover-quince-name,
+            #hero-quince-name {
+                font-size: 3.5rem !important;
+            }
+
+            .wax-seal {
+                width: 64px;
+                height: 64px;
+            }
+
+            .glass-card {
+                padding: 1.25rem 0.9rem;
+            }
+        }
+
+        /* Tablets (481px a 768px) */
+        @media (min-width: 481px) and (max-width: 768px) {
+            #main-content {
+                max-width: 100% !important;
+                border-left: none !important;
+                border-right: none !important;
+            }
+        }
+
+        /* Escritorio grande (1025px en adelante) */
+        @media (min-width: 1025px) {
+            #main-content {
+                max-width: 700px !important;
+            }
+        }
+    
+        /* =========================================================
+           MEJORAS VISUALES POST-APERTURA - TODAS LAS SECCIONES
+        ========================================================= */
+
+        /* Hacer el contenedor principal mas ancho y mejor centrado */
+        #main-content {
+            max-width: 520px !important;
+        }
+
+        /* Mejor separacion de secciones */
+        #main-content section {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        /* Formulario RSVP - mejorar legibilidad */
+        #rsvp-form input,
+        #rsvp-form select,
+        #rsvp-form textarea {
+            font-size: 0.9rem;
+            padding: 0.85rem 1rem;
+        }
+
+        #rsvp-form label {
+            letter-spacing: 0.08em;
+        }
+
+        /* Galeria 2x2 en movil, mejor aspect ratio */
+        .grid.grid-cols-2 > div img {
+            transition: transform 0.5s ease;
+        }
+
+        .grid.grid-cols-2 > div:hover img {
+            transform: scale(1.06);
+        }
+
+        /* Glass cards - mas padding y radio en pantallas grandes */
+        @media (min-width: 520px) {
+            #main-content {
+                max-width: 580px !important;
+            }
+
+            .glass-card {
+                padding: 1.75rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #main-content {
+                max-width: 640px !important;
+            }
+
+            #rsvp-form {
+                padding: 0 0.5rem;
+            }
+
+            .grid.grid-cols-2 > div {
+                height: 13rem;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            #main-content {
+                max-width: 680px !important;
+            }
+        }
+
+        /* Movil pequeno - ajustes criticos */
+        @media (max-width: 390px) {
+            #rsvp-form .grid.grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+
+            #rsvp-form .grid.grid-cols-2 > div + div {
+                margin-top: 0.5rem;
+            }
+
+            .glass-card {
+                padding: 1.1rem 0.9rem;
+            }
         }
     </style>
 </head>

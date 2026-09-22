@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Bautizo - Invitación Especial</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Tone.js for soft synthesized audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            light: '#FAF3E0',
+                            DEFAULT: '#D4AF37',
+                            dark: '#AA7C11',
+                            rose: '#E8C5C8'
+                        },
+                        pastel: {
+                            blue: '#E3EDF7',
+                            pink: '#FBE8E7',
+                            cream: '#FCFBF7',
+                            sage: '#E2E8E4'
+                        },
+                        stone: {
+                            dark: '#2A2A2A'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        cursive: ['Great Vibes', 'cursive'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+            color: #333333;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Glassmorphism cards */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #B8860B 0%, #E6CA65 30%, #AA7C11 60%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Envelope animation styles */
+        .envelope-box {
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .envelope-screen.open {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Floating background bokeh particles */
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.5) 0%, rgba(212, 175, 55, 0) 70%);
+            border-radius: 50%;
+            animation: floatParticle 14s linear infinite;
+        }
+
+        /* Pulse effect for key buttons */
+        @keyframes softPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 14px rgba(212, 175, 55, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+            }
+        }
+
+        .btn-pulse {
+            animation: softPulse 2.2s infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-stone-900 min-h-screen text-gray-800 flex flex-col justify-between items-center relative selection:bg-gold-light">
+
+    <!-- Ambient floating particles background -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Music Control Floating Button -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Control de Música"
+        class="fixed top-5 right-5 z-50 bg-white/90 hover:bg-white text-gold-dark p-3 rounded-full shadow-lg border border-gold/40 transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i id="music-icon" class="fas fa-music text-lg"></i>
+    </button>
+
+    <!-- ENVELOPE / WELCOME COVER SCREEN -->
+    <div id="envelope-screen"
+        class="envelope-screen fixed inset-0 z-40 bg-stone-900 flex flex-col items-center justify-center p-4 transition-all duration-1000">
+        <div class="text-center mb-8 px-4">
+            <div class="inline-block p-3 rounded-full bg-gold/10 text-gold mb-3">
+                <svg class="w-8 h-8 fill-current" viewBox="0 0 24 24">
+                    <!-- Subtle Cross / Dove Motif SVG -->
+                    <path d="M11 2h2v7h7v2h-7v11h-2V11H4V9h7V2z" />
+                </svg>
+            </div>
+            <p class="text-gold-light tracking-[0.3em] text-xs uppercase mb-2">Mi Bautizo</p>
+            <h1 id="cover-baby-name" class="text-white font-cursive text-5xl md:text-6xl gold-gradient-text">Santiago
+            </h1>
+        </div>
+
+        <div class="w-full max-w-sm cursor-pointer group px-4" onclick="openEnvelope()">
+            <div
+                class="envelope-box relative bg-stone-800 border border-gold/50 rounded-2xl p-8 text-center shadow-2xl group-hover:-translate-y-2 group-hover:border-gold transition-all duration-500">
+                <div
+                    class="w-16 h-16 mx-auto mb-4 rounded-full border border-gold/60 flex items-center justify-center text-gold text-2xl bg-stone-900/50">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h3 class="text-white font-serif text-xl mb-2">Tiene una invitación especial</h3>
+                <p class="text-gray-400 text-[11px] uppercase tracking-widest mb-6">Toca para abrir la carta</p>
+                <div
+                    class="inline-block px-6 py-2.5 bg-gradient-to-r from-gold-dark via-gold to-gold-dark text-stone-900 font-bold text-xs rounded-full uppercase tracking-widest btn-pulse">
+                    Abrir Invitación
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION CARD CONTAINER -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto min-h-screen bg-pastel-cream shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x border-gold/20">
+
+        <!-- HEADER HERO SECTION -->
+        <section
+            class="relative min-h-[75vh] flex flex-col justify-between items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(252,251,247,0.3), rgba(252,251,247,1)), url('https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1000&q=80');">
+
+            <!-- Top SVG Halo Ornament -->
+            <div class="pt-8 text-gold">
+                <svg class="w-12 h-12 mx-auto fill-current opacity-80" viewBox="0 0 24 24">
+                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2z" />
+                </svg>
+            </div>
+
+            <div class="my-auto py-6">
+                <span
+                    class="inline-block px-5 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-[11px] tracking-[0.3em] uppercase text-gray-700 font-semibold mb-4 border border-gold/30 shadow-sm">
+                    Santo Bautismo
+                </span>
+
+                <h1 id="hero-baby-name" class="text-6xl md:text-7xl font-cursive text-stone-dark my-2 leading-tight">
+                    Santiago
+                </h1>
+
+                <p id="hero-quote"
+                    class="text-gray-600 font-serif italic text-xs md:text-sm mt-3 max-w-xs mx-auto leading-relaxed">
+                    "Doy gracias a Dios por el don de tu vida y por la bendición de guiar tus pasos en la fe."
+                </p>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="pb-4 animate-bounce text-gold-dark/80">
+                <i class="fas fa-chevron-down text-lg"></i>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER SECTION -->
+        <section class="px-6 py-8 text-center border-y border-gold/10 bg-white/50">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-gold-dark font-bold mb-1">Nos vemos pronto</h2>
+            <p class="font-serif text-xl text-gray-800 mb-6">Cuenta Regresiva</p>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 md:gap-3 max-w-sm mx-auto">
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="font-serif text-2xl font-bold text-stone-dark">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-gray-500 mt-1">Días</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="font-serif text-2xl font-bold text-stone-dark">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-gray-500 mt-1">Horas</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="font-serif text-2xl font-bold text-stone-dark">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-gray-500 mt-1">Min</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="font-serif text-2xl font-bold text-stone-dark">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-gray-500 mt-1">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAMILY DETAILS (PARENTS & GODPARENTS) -->
+        <section class="px-6 py-10 space-y-6">
+            <div class="glass-card rounded-3xl p-6 text-center">
+                <!-- Parents -->
+                <div class="mb-6">
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-gold-dark font-bold">Con la bendición de
+                        mis Padres</span>
+                    <p id="parents-names" class="font-serif text-lg text-gray-800 mt-1 font-semibold">Carlos Mateo &
+                        Sofía Elena</p>
+                </div>
+
+                <div class="w-12 border-b border-gold/30 mx-auto my-4"></div>
+
+                <!-- Godparents -->
+                <div>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-gold-dark font-bold">Mis Padrinos</span>
+                    <p id="godparents-names" class="font-serif text-lg text-gray-800 mt-1 font-semibold">Alejandro Ruiz
+                        & Valeria Gómez</p>
+                </div>
+            </div>
+
+            <!-- LOCATION CARD 1: CHURCH / CEREMONY -->
+            <div
+                class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold transition-all duration-300 hover:shadow-xl">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-3 text-xl">
+                    <i class="fas fa-church"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.25em] text-gold-dark font-bold">Misa de Bautismo</span>
+                <h3 id="church-name" class="font-serif text-xl font-semibold my-1">Parroquia de San José</h3>
+
+                <p id="ceremony-date" class="text-xs uppercase tracking-widest text-stone-600 font-medium mb-3">Sábado,
+                    24 de Octubre, 2026</p>
+
+                <div
+                    class="flex justify-center items-center gap-4 text-xs text-gray-600 mb-4 bg-pastel-cream/80 py-2 px-4 rounded-full w-fit mx-auto border border-gold/20">
+                    <div>
+                        <i class="far fa-clock text-gold-dark mr-1"></i>
+                        <span id="church-time">12:00 PM</span>
+                    </div>
+                </div>
+
+                <p id="church-address" class="text-xs text-gray-500 mb-5 leading-relaxed">Av. Universidad #450, Col.
+                    Centro</p>
+
+                <!-- MAP BUTTON CHURCH -->
+                <a id="church-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3 px-5 bg-stone-900 hover:bg-black text-white text-xs uppercase tracking-widest font-semibold rounded-xl transition duration-300 shadow-md group">
+                    <i class="fas fa-map-marker-alt text-gold group-hover:animate-bounce"></i>
+                    <span>Ver Iglesia en Google Maps</span>
+                </a>
+            </div>
+
+            <!-- LOCATION CARD 2: RECEPTION / REUNIÓN -->
+            <div
+                class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold transition-all duration-300 hover:shadow-xl">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-3 text-xl">
+                    <i class="fas fa-glass-cheers"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.25em] text-gold-dark font-bold">Celebración</span>
+                <h3 id="reception-name" class="font-serif text-xl font-semibold my-1">Jardín de Eventos Las Luces</h3>
+
+                <div
+                    class="flex justify-center items-center gap-4 text-xs text-gray-600 my-3 bg-pastel-cream/80 py-2 px-4 rounded-full w-fit mx-auto border border-gold/20">
+                    <div>
+                        <i class="far fa-clock text-gold-dark mr-1"></i>
+                        <span id="reception-time">02:30 PM</span>
+                    </div>
+                </div>
+
+                <p id="reception-address" class="text-xs text-gray-500 mb-5 leading-relaxed">Calle Los Olivos #12, Col.
+                    Jardines</p>
+
+                <!-- MAP BUTTON RECEPTION -->
+                <a id="reception-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3 px-5 bg-stone-900 hover:bg-black text-white text-xs uppercase tracking-widest font-semibold rounded-xl transition duration-300 shadow-md group">
+                    <i class="fas fa-map-marked-alt text-gold group-hover:animate-bounce"></i>
+                    <span>Ver Recepción en Google Maps</span>
+                </a>
+            </div>
+
+            <!-- DRESS CODE CARD -->
+            <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-3 text-xl">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1">Código de Vestimenta</h3>
+                <p id="dress-code-title" class="text-xs uppercase tracking-widest text-gold-dark font-semibold mb-2">
+                    Formal / Colores Claros</p>
+                <p id="dress-code-desc" class="text-xs text-gray-600 leading-relaxed">
+                    Te sugerimos tonos pasteles, blanco o beige para celebrar juntos este día tan especial.
+                </p>
+            </div>
+
+            <!-- GIFT REGISTRY / MESA DE REGALOS -->
+            <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-3 text-xl">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1">Mesa de Regalos</h3>
+                <p class="text-xs text-gray-600 mb-4">
+                    Tu presencia es nuestro mejor regalo. Si deseas hacerme un presente, te dejamos las opciones:
+                </p>
+                <div class="flex flex-col gap-2">
+                    <button onclick="openBankModal()"
+                        class="w-full py-3 px-4 bg-white border border-gray-200 hover:border-gold rounded-xl text-xs text-gray-700 flex items-center justify-between transition shadow-sm">
+                        <span><i class="fas fa-university text-gold-dark mr-2"></i> Cuenta Bancaria
+                            (Transferencia)</span>
+                        <i class="fas fa-chevron-right text-gray-400 text-xs"></i>
+                    </button>
+                    <a id="gift-store-link" href="https://www.amazon.com" target="_blank"
+                        class="w-full py-3 px-4 bg-white border border-gray-200 hover:border-gold rounded-xl text-xs text-gray-700 flex items-center justify-between transition shadow-sm">
+                        <span><i class="fas fa-shopping-bag text-gold-dark mr-2"></i> Mesa de Regalos Online</span>
+                        <i class="fas fa-external-link-alt text-gray-400 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHOTO GALLERY GRID -->
+        <section class="px-6 py-8 bg-white/40 border-y border-gold/10">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-gold-dark font-bold text-center mb-1">Galería</h2>
+            <p class="font-serif text-2xl text-stone-dark text-center mb-6">Mis Momentos</p>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="overflow-hidden rounded-2xl shadow-sm h-44 bg-gray-100">
+                    <img id="gallery-img-1"
+                        src="https://images.unsplash.com/photo-1555252333-9f8e92e65df9?auto=format&fit=crop&w=600&q=80"
+                        alt="Bebé 1"
+                        class="w-full h-full object-cover transform hover:scale-105 transition duration-500"
+                        onerror="this.src='https://placehold.co/400x500/FCFBF7/D4AF37?text=Santiago'">
+                </div>
+                <div class="overflow-hidden rounded-2xl shadow-sm h-44 bg-gray-100">
+                    <img id="gallery-img-2"
+                        src="https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=600&q=80"
+                        alt="Bebé 2"
+                        class="w-full h-full object-cover transform hover:scale-105 transition duration-500"
+                        onerror="this.src='https://placehold.co/400x500/FCFBF7/D4AF37?text=Mi+Bautizo'">
+                </div>
+            </div>
+        </section>
+
+        <!-- RSVP SECTION WITH DUAL WHATSAPP TARGET -->
+        <section class="px-6 py-10 bg-white/80">
+            <div class="max-w-md mx-auto text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-3">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h2 class="font-serif text-2xl font-bold text-stone-dark mb-1">Confirmar Asistencia</h2>
+                <p class="text-xs text-gray-500 mb-6">Por favor confirma tu presencia para esperarte con alegría</p>
+
+                <!-- RSVP FORM -->
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">Nombre
+                            Completo *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Familia Gómez Pérez"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">¿Asistirás?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white">
+                                <option value="¡Sí, asistiré con mucho gusto!">¡Sí, asistiré!</option>
+                                <option value="Lo siento, no podré asistir">No podré asistir</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">Pases
+                                / Personas</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white">
+                                <option value="1 Persona">1 Persona</option>
+                                <option value="2 Personas">2 Personas</option>
+                                <option value="3 Personas">3 Personas</option>
+                                <option value="Familia (4+)">Familia (4+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-1">Mensaje
+                            para el Festejado</label>
+                        <textarea id="message" rows="2" placeholder="Un mensaje con cariño..."
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white"></textarea>
+                    </div>
+
+                    <!-- SELECT WHATSAPP RECEIVER (DUAL CONTACT OPTION) -->
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-gray-700 uppercase tracking-wider mb-2">Confirmar
+                            asistencia a: *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-50/50 transition border-gray-200 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/80 bg-white">
+                                <input type="radio" name="organizer" value="contact1" checked
+                                    class="text-emerald-600 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-gray-800" id="contact1-label-name">Mamá (Sofía)</p>
+                                    <p class="text-[10px] text-gray-500" id="contact1-label-role">Contacto 1</p>
+                                </div>
+                            </label>
+
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-50/50 transition border-gray-200 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/80 bg-white">
+                                <input type="radio" name="organizer" value="contact2"
+                                    class="text-emerald-600 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-gray-800" id="contact2-label-name">Padrino (Alejandro)</p>
+                                    <p class="text-[10px] text-gray-500" id="contact2-label-role">Contacto 2</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md hover:shadow-emerald-600/30 transition duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest mt-4">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                        <span>Enviar Confirmación</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-10 text-center bg-stone-900 text-white px-4">
+            <p id="footer-baby-name" class="font-cursive text-4xl gold-gradient-text mb-1">Santiago</p>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400">Gracias por formar parte de este día
+                bendecido</p>
+        </footer>
+
+    </main>
+
+    <!-- BANK DETAILS MODAL -->
+    <div id="bank-modal"
+        class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl border border-gold/30 transform scale-95 transition-transform duration-300"
+            id="bank-modal-card">
+            <button onclick="closeBankModal()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-stone-dark text-lg">
+                <i class="fas fa-times"></i>
+            </button>
+            <div
+                class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-3 text-xl">
+                <i class="fas fa-university"></i>
+            </div>
+            <h3 class="font-serif text-xl font-bold mb-1 text-stone-dark">Datos Bancarios</h3>
+            <p class="text-xs text-gray-500 mb-4">Puedes realizar tu obsequio mediante transferencia:</p>
+
+            <div class="bg-pastel-cream rounded-2xl p-4 text-left text-xs space-y-2 border border-gold/20 mb-4">
+                <div>
+                    <span class="text-gray-400 block text-[10px] uppercase">Banco</span>
+                    <span id="bank-name" class="font-semibold text-gray-800">BBVA México</span>
+                </div>
+                <div>
+                    <span class="text-gray-400 block text-[10px] uppercase">Titular</span>
+                    <span id="bank-holder" class="font-semibold text-gray-800">Sofía Elena Morales</span>
+                </div>
+                <div>
+                    <span class="text-gray-400 block text-[10px] uppercase">CLABE Interbancaria</span>
+                    <span id="bank-clabe" class="font-mono font-bold text-gray-800">0121 8001 2345 6789 01</span>
+                </div>
+            </div>
+
+            <button onclick="copyBankClabe()"
+                class="w-full py-3 bg-gold hover:bg-gold-dark text-stone-900 font-bold text-xs uppercase tracking-widest rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                <i class="far fa-copy"></i>
+                <span>Copiar CLABE</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           CONFIGURACIÓN FÁCIL Y PERSONALIZABLE DE LA INVITACIÓN
+           ========================================================================== */
+        const CONFIG = {
+            babyName: "Santiago",
+            quote: '"Doy gracias a Dios por el don de tu vida y por la bendición de guiar tus pasos en la fe."',
+            dateISO: "2026-10-24T12:00:00", // Año-Mes-DíaTHora:Minuto:Segundo
+            dateText: "Sábado, 24 de Octubre de 2026",
+
+            parents: "Carlos Mateo & Sofía Elena",
+            godparents: "Alejandro Ruiz & Valeria Gómez",
+
+            church: {
+                name: "Parroquia de San José",
+                time: "12:00 PM",
+                address: "Av. Universidad #450, Col. Centro, Ciudad de México",
+                mapUrl: "https://maps.google.com/?q=Parroquia+de+San+Jose"
+            },
+
+            reception: {
+                name: "Jardín de Eventos Las Luces",
+                time: "02:30 PM",
+                address: "Calle Los Olivos #12, Col. Jardines, Ciudad de México",
+                mapUrl: "https://maps.google.com/?q=Jardin+de+Eventos+Las+Luces"
+            },
+
+            dressCode: {
+                title: "Formal / Colores Claros",
+                description: "Te sugerimos tonos pasteles, blanco o beige para celebrar juntos este día tan especial."
+            },
+
+            giftRegistryUrl: "https://www.amazon.com",
+
+            bankDetails: {
+                bank: "BBVA México",
+                holder: "Sofía Elena Morales",
+                clabe: "0121 8001 2345 6789 01"
+            },
+
+            // CONTACTOS DE WHATSAPP PARA CONFIRMACIÓN DUAL
+            // Formato número: Código de país sin signo '+' (Ejemplo: '5215512345678')
+            contact1: {
+                name: "Sofía",
+                role: "Mamá",
+                phone: "5215512345678"
+            },
+            contact2: {
+                name: "Alejandro",
+                role: "Padrino",
+                phone: "5215512345679"
+            }
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        /* INICIALIZAR VALORES DE LA CONFIGURACIÓN EN EL HTML */
+        function applyConfig() {
+            document.getElementById('cover-baby-name').innerText = CONFIG.babyName;
+            document.getElementById('hero-baby-name').innerText = CONFIG.babyName;
+            document.getElementById('footer-baby-name').innerText = CONFIG.babyName;
+            document.getElementById('hero-quote').innerText = CONFIG.quote;
+
+            document.getElementById('parents-names').innerText = CONFIG.parents;
+            document.getElementById('godparents-names').innerText = CONFIG.godparents;
+
+            // Church
+            document.getElementById('church-name').innerText = CONFIG.church.name;
+            document.getElementById('ceremony-date').innerText = CONFIG.dateText;
+            document.getElementById('church-time').innerText = CONFIG.church.time;
+            document.getElementById('church-address').innerText = CONFIG.church.address;
+            document.getElementById('church-map-link').href = CONFIG.church.mapUrl;
+
+            // Reception
+            document.getElementById('reception-name').innerText = CONFIG.reception.name;
+            document.getElementById('reception-time').innerText = CONFIG.reception.time;
+            document.getElementById('reception-address').innerText = CONFIG.reception.address;
+            document.getElementById('reception-map-link').href = CONFIG.reception.mapUrl;
+
+            // Dress code
+            document.getElementById('dress-code-title').innerText = CONFIG.dressCode.title;
+            document.getElementById('dress-code-desc').innerText = CONFIG.dressCode.description;
+
+            // Gift Registry
+            document.getElementById('gift-store-link').href = CONFIG.giftRegistryUrl;
+
+            // Bank
+            document.getElementById('bank-name').innerText = CONFIG.bankDetails.bank;
+            document.getElementById('bank-holder').innerText = CONFIG.bankDetails.holder;
+            document.getElementById('bank-clabe').innerText = CONFIG.bankDetails.clabe;
+
+            // WhatsApp Contacts
+            document.getElementById('contact1-label-name').innerText = `${CONFIG.contact1.name}`;
+            document.getElementById('contact1-label-role').innerText = CONFIG.contact1.role;
+
+            document.getElementById('contact2-label-name').innerText = `${CONFIG.contact2.name}`;
+            document.getElementById('contact2-label-role').innerText = CONFIG.contact2.role;
+        }
+
+        // Generate Ambient Floating Particles
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            for (let i = 0; i < 18; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 8 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        // Open Envelope Function
+        function openEnvelope() {
+            const envelopeScreen = document.getElementById('envelope-screen');
+            const mainContent = document.getElementById('main-content');
+
+            envelopeScreen.classList.add('open');
+            setTimeout(() => {
+                envelopeScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 800);
+
+            startSoftMusic();
+
+            confetti({
+                particleCount: 70,
+                spread: 60,
+                origin: { y: 0.6 },
+                colors: ['#D4AF37', '#FAF3E0', '#ffffff']
+            });
+        }
+
+        // Synthesize soft ambient lullaby music using Tone.js
+        function startSoftMusic() {
+            try {
+                Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "triangle" },
+                    envelope: { attack: 1.5, decay: 1, sustain: 0.6, release: 2 }
+                }).toDestination();
+                synth.volume.value = -16;
+
+                // Soft bell-like arpeggio
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease(["F4", "A4", "C5"], "2n", time);
+                    synth.triggerAttackRelease(["G4", "B4", "D5"], "2n", time + 1.8);
+                    synth.triggerAttackRelease(["E4", "G4", "B4"], "2n", time + 3.6);
+                    synth.triggerAttackRelease(["C4", "E4", "G4"], "2n", time + 5.4);
+                }, "7s");
+
+                Tone.Transport.bpm.value = 55;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+                document.getElementById('music-icon').className = 'fas fa-music text-gold-dark';
+            } catch (e) {
+                console.log("Audio unable to play automatically", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startSoftMusic();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+                document.getElementById('music-icon').className = 'fas fa-volume-mute text-gray-400';
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+                document.getElementById('music-icon').className = 'fas fa-music text-gold-dark';
+            }
+        }
+
+        // Countdown Timer Logic
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.dateISO).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-serif text-lg text-gold-dark font-semibold">¡Hoy celebramos el Santo Bautismo!</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Send RSVP via WhatsApp
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const message = document.getElementById('message').value.trim();
+            const selectedContact = document.querySelector('input[name="organizer"]:checked').value;
+
+            let targetPhone = CONFIG.contact1.phone;
+            let targetName = CONFIG.contact1.name;
+
+            if (selectedContact === 'contact2') {
+                targetPhone = CONFIG.contact2.phone;
+                targetName = CONFIG.contact2.name;
+            }
+
+            // WhatsApp Message Formatting
+            let textMessage = `*CONFIRMACIÓN - BAUTIZO DE ${CONFIG.babyName.toUpperCase()}* 🕊️\n\n`;
+            textMessage += `Hola *${targetName}*, confirmo mi asistencia:\n\n`;
+            textMessage += `👤 *Invitado / Familia:* ${name}\n`;
+            textMessage += `✨ *Respuesta:* ${attendance}\n`;
+            textMessage += `🎟️ *Pases:* ${passes}\n`;
+            if (message !== "") {
+                textMessage += `💬 *Mensaje:* "${message}"\n`;
+            }
+            textMessage += `\n¡Gracias por la invitación! 🙏`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
+
+            confetti({
+                particleCount: 90,
+                spread: 70,
+                origin: { y: 0.5 }
+            });
+
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 600);
+        }
+
+        // Bank Modal Handlers
+        function openBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+
+        function closeBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+        }
+
+        function copyBankClabe() {
+            const clabe = CONFIG.bankDetails.clabe;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = clabe;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            // Toast notification
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-stone-900 text-white px-5 py-2.5 rounded-full text-xs shadow-xl z-50 border border-gold/40 flex items-center gap-2";
+            toast.innerHTML = `<i class="fas fa-check text-emerald-400"></i> CLABE copiada al portapapeles`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => { toast.remove(); }, 2500);
+            closeBankModal();
+        }
+
+        // On Load Initialization
+        window.onload = function () {
+            applyConfig();
+            createParticles();
+            updateCountdown();
+        };
+    </script>
+</body>
+
+</html>

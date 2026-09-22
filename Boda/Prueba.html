@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitación Digital Especial</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            light: '#F3E5AB',
+                            dark: '#AA7C11',
+                            rose: '#B76E79'
+                        },
+                        champagne: '#F9F6F0',
+                        darkslate: '#1A1A1A'
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        cursive: ['Alex Brush', 'cursive'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0d0d0d;
+            color: #333333;
+            overflow-x: hidden;
+        }
+
+        .font-cursive {
+            font-family: 'Alex Brush', cursive;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Glassmorphism card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA7C11 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-border {
+            border-image: linear-gradient(to bottom right, #BF953F, #FCF6BA, #AA7C11) 1;
+        }
+
+        /* Envelope animation styles */
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .envelope.open {
+            transform: translateY(100%) scale(0.8);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Floating background particles */
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(212, 175, 55, 0.6) 0%, rgba(212, 175, 55, 0) 70%);
+            border-radius: 50%;
+            animation: float 12s linear infinite;
+        }
+
+        /* Pulse subtle for buttons */
+        @keyframes goldPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(212, 175, 55, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+            }
+        }
+
+        .btn-gold-pulse {
+            animation: goldPulse 2s infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-darkslate min-h-screen text-gray-800 flex flex-col justify-between items-center relative selection:bg-gold-light">
+
+    <!-- Ambient floating particles background -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Music Control Button (Fixed floating) -->
+    <button id="music-toggle" onclick="toggleAudio()"
+        class="fixed top-5 right-5 z-50 bg-white/80 hover:bg-white text-gold-dark p-3 rounded-full shadow-lg border border-gold/40 transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i id="music-icon" class="fas fa-music text-lg"></i>
+    </button>
+
+    <!-- ENVELOPE OVERLAY / ENTRANCE -->
+    <div id="envelope-screen"
+        class="fixed inset-0 z-40 bg-darkslate flex flex-col items-center justify-center p-4 transition-all duration-1000">
+        <div class="text-center mb-8">
+            <p class="text-gold-light tracking-widest text-sm uppercase mb-2">Has recibido una invitación especial</p>
+            <h1 class="text-white font-cursive text-5xl md:text-6xl gold-gradient-text">Nuestra Boda</h1>
+        </div>
+
+        <div class="envelope-wrapper w-full max-w-sm cursor-pointer group" onclick="openEnvelope()">
+            <div id="envelope-box"
+                class="relative bg-stone-900 border-2 border-gold/60 rounded-xl p-8 text-center shadow-2xl transition-all duration-500 transform group-hover:-translate-y-2 group-hover:shadow-[0_20px_50px_rgba(212,175,55,0.2)]">
+                <div
+                    class="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-gold flex items-center justify-center text-gold text-2xl">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <h3 class="text-white font-serif text-2xl mb-2">Para Nuestros Queridos Invitados</h3>
+                <p class="text-gray-400 text-xs mb-6 tracking-wide">TOCA AQUÍ PARA ABRIR LA INVITACIÓN</p>
+                <div
+                    class="inline-block px-6 py-2.5 bg-gradient-to-r from-gold-dark via-gold to-gold-dark text-black font-semibold text-xs rounded-full uppercase tracking-widest btn-gold-pulse">
+                    Abrir Invitación
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION CONTENT CONTAINER -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto my-0 min-h-screen bg-champagne shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x border-gold/20">
+
+        <!-- HEADER / HERO SECTION -->
+        <section
+            class="relative h-[85vh] flex flex-col justify-end items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(249, 246, 240, 1)), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80');">
+
+            <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-champagne"></div>
+
+            <div class="relative z-10 w-full mb-8">
+                <span
+                    class="inline-block px-4 py-1 rounded-full bg-white/70 backdrop-blur-md text-xs tracking-[0.3em] uppercase text-gray-800 font-semibold mb-4 border border-gold/30">
+                    ¡Nos Casamos!
+                </span>
+
+                <h1 class="text-6xl md:text-7xl font-cursive text-white drop-shadow-md my-2">
+                    Sofia & Mateo
+                </h1>
+
+                <p class="text-gray-700 font-serif italic text-sm md:text-base mt-2 max-w-xs mx-auto">
+                    "El amor no se mira con los ojos, sino con el alma."
+                </p>
+
+                <!-- Scroll down indicator -->
+                <div class="mt-8 animate-bounce text-gold-dark">
+                    <i class="fas fa-chevron-down text-xl"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN SECTION -->
+        <section class="px-6 py-10 text-center relative">
+            <h2 class="text-xs uppercase tracking-[0.25em] text-gold-dark font-bold mb-2">Falta muy poco</h2>
+            <p class="font-serif text-2xl text-gray-800 mb-6">Cuenta Regresiva</p>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 md:gap-4 max-w-sm mx-auto">
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="font-serif text-2xl md:text-3xl font-bold text-gray-800">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-500 mt-1">Días</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="font-serif text-2xl md:text-3xl font-bold text-gray-800">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-500 mt-1">Horas</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="font-serif text-2xl md:text-3xl font-bold text-gray-800">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-500 mt-1">Min</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="font-serif text-2xl md:text-3xl font-bold text-gray-800">00</span>
+                    <span class="text-[10px] uppercase tracking-wider text-gray-500 mt-1">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENT DETAILS SECTION -->
+        <section class="px-6 py-8 space-y-6">
+
+            <!-- Ceremony & Reception Details -->
+            <div
+                class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold transition-all duration-300 hover:shadow-xl">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-4 text-xl">
+                    <i class="fas fa-church"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1">Ceremonia & Recepción</h3>
+                <p class="text-xs uppercase tracking-widest text-gold-dark font-semibold mb-4">Sábado, 24 de Octubre de
+                    2026</p>
+
+                <div
+                    class="flex justify-center items-center gap-6 text-sm text-gray-600 mb-6 border-y border-gray-200 py-3">
+                    <div>
+                        <i class="far fa-clock text-gold-dark mr-1"></i>
+                        <span>17:00 HRS</span>
+                    </div>
+                    <div class="border-r border-gray-300 h-4"></div>
+                    <div>
+                        <i class="fas fa-glass-cheers text-gold-dark mr-1"></i>
+                        <span>Hacienda San José</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-500 mb-6">Av. De las Palmas #123, Col. Jardines del Valle, Ciudad de México
+                </p>
+
+                <!-- GOOGLE MAPS DIRECT BUTTON -->
+                <a id="gmaps-link" href="https://maps.google.com/?q=Hacienda+San+Jose+CDMX" target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3 px-6 bg-stone-900 hover:bg-black text-white text-xs uppercase tracking-widest font-semibold rounded-xl transition duration-300 shadow-md group">
+                    <i class="fas fa-map-marker-alt text-gold group-hover:animate-bounce"></i>
+                    <span>Ver Ubicación en Google Maps</span>
+                </a>
+            </div>
+
+            <!-- DRESS CODE CARD -->
+            <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-4 text-xl">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1">Código de Vestimenta</h3>
+                <p class="text-xs uppercase tracking-widest text-gold-dark font-semibold mb-2">Formal / Etiqueta</p>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    Agradecemos evitar el color blanco y tonos beige claros para mantener el protagonismo de la novia.
+                </p>
+            </div>
+
+            <!-- GIFT REGISTRY / MESA DE REGALOS -->
+            <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-gold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-gold/10 flex items-center justify-center text-gold-dark mb-4 text-xl">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1">Mesa de Regalos</h3>
+                <p class="text-xs text-gray-600 mb-4">
+                    Tu presencia es nuestro mejor regalo. Si deseas hacernos un detalle, te dejamos nuestras opciones:
+                </p>
+                <div class="flex flex-col gap-2">
+                    <button onclick="copyToClipboard('1234-5678-9012-3456', 'Número de Cuenta Bancaria')"
+                        class="w-full py-2.5 px-4 bg-white border border-gray-200 hover:border-gold rounded-xl text-xs text-gray-700 flex items-center justify-between transition">
+                        <span><i class="fas fa-university text-gold-dark mr-2"></i> Datos Bancarios (CLABE)</span>
+                        <i class="far fa-copy text-gray-400"></i>
+                    </button>
+                    <a href="https://www.amazon.com" target="_blank"
+                        class="w-full py-2.5 px-4 bg-white border border-gray-200 hover:border-gold rounded-xl text-xs text-gray-700 flex items-center justify-between transition">
+                        <span><i class="fab fa-amazon text-gold-dark mr-2"></i> Mesa de Regalos Amazon</span>
+                        <i class="fas fa-external-link-alt text-gray-400 text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- GALLERY SECTION -->
+        <section class="px-6 py-8">
+            <h2 class="text-xs uppercase tracking-[0.25em] text-gold-dark font-bold text-center mb-1">Nuestra Historia
+            </h2>
+            <p class="font-serif text-2xl text-gray-800 text-center mb-6">Momentos Especiales</p>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="overflow-hidden rounded-2xl shadow-md h-40">
+                    <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=600&q=80"
+                        alt="Pareja 1"
+                        class="w-full h-full object-cover transform hover:scale-110 transition duration-500"
+                        onerror="this.src='https://placehold.co/400x400/1a1a1a/D4AF37?text=Sofia+%26+Mateo'">
+                </div>
+                <div class="overflow-hidden rounded-2xl shadow-md h-40">
+                    <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=600&q=80"
+                        alt="Pareja 2"
+                        class="w-full h-full object-cover transform hover:scale-110 transition duration-500"
+                        onerror="this.src='https://placehold.co/400x400/1a1a1a/D4AF37?text=Nuestra+Historia'">
+                </div>
+            </div>
+        </section>
+
+        <!-- RSVP / CONFIRMATION SECTION (WHATSAPP CONFIGURATION FOR 2 NUMBERS) -->
+        <section class="px-6 py-10 bg-white/60 border-t border-gold/30">
+            <div class="max-w-md mx-auto text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mb-3">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h2 class="font-serif text-2xl font-bold text-gray-800 mb-1">Confirmar Asistencia</h2>
+                <p class="text-xs text-gray-500 mb-6">Por favor confirma tu asistencia antes del 1 de Octubre</p>
+
+                <!-- RSVP FORM -->
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Nombre
+                            Completo *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Juan Pérez"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white/90">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">¿Asistirás?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white/90">
+                                <option value="Sí, con gusto asistiré">¡Sí, ahí estaré!</option>
+                                <option value="Lamentablemente no podré asistir">No podré asistir</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Pases
+                                / Personas</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white/90">
+                                <option value="1 Persona (Solo yo)">1 Persona</option>
+                                <option value="2 Personas">2 Personas</option>
+                                <option value="3 Personas">3 Personas</option>
+                                <option value="Familia (4+)">Familia (4+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Mensaje
+                            Opcional para los Festejados</label>
+                        <textarea id="message" rows="2" placeholder="¡Muchas felicidades! Nos vemos pronto..."
+                            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-gold focus:border-transparent outline-none text-sm transition bg-white/90"></textarea>
+                    </div>
+
+                    <!-- SELECT WHATSAPP RECEIVER -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-2">Enviar
+                            Confirmación a: *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-50/50 transition border-gray-200 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+                                <input type="radio" name="organizer" value="org1" checked
+                                    class="text-emerald-600 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-gray-800" id="org1-label-name">Sofia (Novia)</p>
+                                    <p class="text-[10px] text-gray-500">Organizador 1</p>
+                                </div>
+                            </label>
+
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-50/50 transition border-gray-200 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50">
+                                <input type="radio" name="organizer" value="org2"
+                                    class="text-emerald-600 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-gray-800" id="org2-label-name">Mateo (Novio)</p>
+                                    <p class="text-[10px] text-gray-500">Organizador 2</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-600/30 transition duration-300 flex items-center justify-center gap-2 text-sm uppercase tracking-wider">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                        <span>Enviar WhatsApp</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-8 text-center bg-stone-900 text-white">
+            <p class="font-cursive text-3xl gold-gradient-text mb-1">Sofia & Mateo</p>
+            <p class="text-[10px] uppercase tracking-widest text-gray-400">¡Esperamos contar con tu presencia!</p>
+        </footer>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* CONFIGURACIÓN DE LOS ORGANIZADORES Y NÚMEROS DE WHATSAPP */
+        // Incluir el código de país sin el signo '+' (Ejemplo: '5215512345678' para México)
+        const CONFIG = {
+            targetDate: "2026-10-24T17:00:00",
+            organizer1: {
+                name: "Sofia",
+                phone: "5215512345678" // Reemplazar con el número real 1
+            },
+            organizer2: {
+                name: "Mateo",
+                phone: "5215512345679" // Reemplazar con el número real 2
+            }
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        // Actualizar nombres en interfaz
+        document.getElementById('org1-label-name').innerText = CONFIG.organizer1.name;
+        document.getElementById('org2-label-name').innerText = CONFIG.organizer2.name;
+
+        // Generate Ambient Floating Particles
+        function createParticles() {
+            const container = document.getElementById('particles-container');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                const size = Math.random() * 8 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        // Open Envelope
+        function openEnvelope() {
+            const envelopeScreen = document.getElementById('envelope-screen');
+            const mainContent = document.getElementById('main-content');
+
+            envelopeScreen.classList.add('open');
+            setTimeout(() => {
+                envelopeScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 800);
+
+            // Trigger music
+            startSoftMusic();
+
+            // Confetti effect on opening
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#D4AF37', '#F3E5AB', '#ffffff']
+            });
+        }
+
+        // Synthesize soft background music using Tone.js (no external MP3 dependence)
+        function startSoftMusic() {
+            try {
+                Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 2, decay: 1, sustain: 0.5, release: 2 }
+                }).toDestination();
+                synth.volume.value = -18;
+
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease(["C4", "E4", "G4", "B4"], "2n", time);
+                    synth.triggerAttackRelease(["A3", "C4", "E4", "G4"], "2n", time + 1.5);
+                    synth.triggerAttackRelease(["F3", "A3", "C4", "E4"], "2n", time + 3.0);
+                    synth.triggerAttackRelease(["G3", "B3", "D4", "F#4"], "2n", time + 4.5);
+                }, "6s");
+
+                Tone.Transport.bpm.value = 60;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+                document.getElementById('music-icon').className = 'fas fa-music text-gold-dark';
+            } catch (e) {
+                console.log("Audio couldn't start automatically", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startSoftMusic();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+                document.getElementById('music-icon').className = 'fas fa-volume-mute text-gray-400';
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+                document.getElementById('music-icon').className = 'fas fa-music text-gold-dark';
+            }
+        }
+
+        // Countdown Timer Logic
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.targetDate).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-serif text-xl text-gold-dark">¡Hoy es el gran día!</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Send RSVP via WhatsApp
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const message = document.getElementById('message').value.trim();
+            const selectedOrg = document.querySelector('input[name="organizer"]:checked').value;
+
+            let targetPhone = CONFIG.organizer1.phone;
+            let targetName = CONFIG.organizer1.name;
+
+            if (selectedOrg === 'org2') {
+                targetPhone = CONFIG.organizer2.phone;
+                targetName = CONFIG.organizer2.name;
+            }
+
+            // Text formatting for WhatsApp message
+            let textMessage = `*CONFIRMACIÓN DE ASISTENCIA* 💌\n\n`;
+            textMessage += `Hola *${targetName}*, confirmo los detalles de mi asistencia:\n\n`;
+            textMessage += `👤 *Invitado:* ${name}\n`;
+            textMessage += `✨ *Respuesta:* ${attendance}\n`;
+            textMessage += `🎟️ *Pases / Personas:* ${passes}\n`;
+            if (message !== "") {
+                textMessage += `💬 *Mensaje:* "${message}"\n`;
+            }
+            textMessage += `\n¡Gracias por la invitación! ✨`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
+
+            // Trigger celebration animation
+            confetti({
+                particleCount: 100,
+                spread: 80,
+                origin: { y: 0.5 }
+            });
+
+            // Redirect to WhatsApp after short delay
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 600);
+        }
+
+        // Copy Helper function
+        function copyToClipboard(text, label) {
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            // Simple notification overlay
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-stone-900 text-white px-6 py-3 rounded-full text-xs shadow-xl z-50 border border-gold/40 flex items-center gap-2";
+            toast.innerHTML = `<i class="fas fa-check text-emerald-400"></i> ${label} copiado al portapapeles`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // On Load initialization
+        window.onload = function () {
+            createParticles();
+        };
+    </script>
+</body>
+
+</html>

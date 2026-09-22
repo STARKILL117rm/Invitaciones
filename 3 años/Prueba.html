@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fazbear's 3rd Birthday Bash! - Invitación Digital</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tone.js for 8-bit retro arcade synth audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Fredoka:wght@400;600;700&family=Montserrat:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fnaf: {
+                            purple: '#9d4edd',
+                            neonpurple: '#c77dff',
+                            gold: '#ffb703',
+                            bearbrown: '#8b4513',
+                            cyan: '#00f5d4',
+                            darkbg: '#0c0714',
+                            cardbg: '#180f28',
+                            redaccent: '#ff0055'
+                        }
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'cursive'],
+                        fun: ['Fredoka', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #0c0714;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Checkered Pizzeria Pattern Border */
+        .checkered-border {
+            background-image: linear-gradient(45deg, #1f1235 25%, transparent 25%),
+                linear-gradient(-45deg, #1f1235 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #1f1235 75%),
+                linear-gradient(-45deg, transparent 75%, #1f1235 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Subtle Arcade CRT Scanlines Effect */
+        .crt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 30;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* Glassmorphism & Neon Shadows */
+        .fnaf-card {
+            background: rgba(24, 15, 40, 0.85);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(199, 125, 255, 0.3);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.25);
+        }
+
+        .fnaf-card-gold {
+            background: rgba(24, 15, 40, 0.85);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 183, 3, 0.4);
+            box-shadow: 0 0 20px rgba(255, 183, 3, 0.2);
+        }
+
+        /* Neon Glow Text */
+        .neon-purple-text {
+            text-shadow: 0 0 10px #c77dff, 0 0 20px #9d4edd;
+        }
+
+        .neon-gold-text {
+            text-shadow: 0 0 10px #ffb703, 0 0 20px #fb8500;
+        }
+
+        /* Arcade Pulse Button */
+        @keyframes neonPulse {
+            0% {
+                box-shadow: 0 0 10px #ffb703, 0 0 20px #ffb703;
+            }
+
+            50% {
+                box-shadow: 0 0 20px #ffb703, 0 0 35px #ff0055;
+            }
+
+            100% {
+                box-shadow: 0 0 10px #ffb703, 0 0 20px #ffb703;
+            }
+        }
+
+        .btn-neon-pulse {
+            animation: neonPulse 2s infinite;
+        }
+
+        /* Glitch Animation for Intro Title */
+        @keyframes glitchAnim {
+            0% {
+                transform: translate(0)
+            }
+
+            20% {
+                transform: translate(-2px, 2px)
+            }
+
+            40% {
+                transform: translate(-2px, -2px)
+            }
+
+            60% {
+                transform: translate(2px, 2px)
+            }
+
+            80% {
+                transform: translate(2px, -2px)
+            }
+
+            100% {
+                transform: translate(0)
+            }
+        }
+
+        .glitch-hover:hover {
+            animation: glitchAnim 0.3s ease infinite;
+        }
+
+        /* Particle Stars */
+        @keyframes floatStar {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0.2;
+            }
+
+            50% {
+                opacity: 0.9;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .arcade-star {
+            position: absolute;
+            pointer-events: none;
+            background: #00f5d4;
+            border-radius: 50%;
+            animation: floatStar 10s linear infinite;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen relative flex flex-col items-center justify-between selection:bg-fnaf-gold selection:text-black">
+
+    <!-- CRT Overlay -->
+    <div class="crt-overlay"></div>
+
+    <!-- Floating Arcade Stars Container -->
+    <div id="stars-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Music Control Floating Toggle Button -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Música Retro Arcade"
+        class="fixed top-5 right-5 z-50 bg-fnaf-purple/90 hover:bg-fnaf-neonpurple text-white p-3 rounded-full shadow-2xl border-2 border-fnaf-gold transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i data-lucide="volume-2" class="w-5 h-5 text-fnaf-gold"></i>
+    </button>
+
+    <!-- INTRO COVER SCREEN (ARCADE TICKET PASS) -->
+    <div id="intro-screen"
+        class="fixed inset-0 z-40 bg-fnaf-darkbg flex flex-col items-center justify-center p-4 transition-all duration-700 border-b-4 border-fnaf-gold">
+
+        <div class="text-center mb-6 px-4">
+            <!-- Stylized Fazbear Ear & Hat Icon -->
+            <div
+                class="w-20 h-20 mx-auto mb-3 bg-fnaf-purple/30 rounded-full flex items-center justify-center border-2 border-fnaf-gold shadow-[0_0_25px_#ffb703]">
+                <svg class="w-12 h-12 fill-fnaf-gold" viewBox="0 0 24 24">
+                    <!-- Top Hat & Bear Silhouette SVG -->
+                    <path
+                        d="M8 3h8v3H8zM5 7h14v2H5zM6 10c0-1.1.9-2 2-2h8a2 2 0 0 1 2 2v2c1.1 0 2 .9 2 2v2c0 2.2-1.8 4-4 4H8c-2.2 0-4-1.8-4-4v-2c0-1.1.9-2 2-2v-2z" />
+                    <circle cx="8.5" cy="12.5" r="1.5" fill="#0c0714" />
+                    <circle cx="15.5" cy="12.5" r="1.5" fill="#0c0714" />
+                    <polygon points="12,14 10,16 14,16" fill="#ff0055" />
+                </svg>
+            </div>
+
+            <p class="font-pixel text-[10px] text-fnaf-cyan tracking-widest uppercase mb-2">★ FAZBEAR'S PARTY PASS ★</p>
+            <h1 id="cover-child-name" class="font-fun text-5xl md:text-6xl font-extrabold text-white neon-gold-text">
+                Mateo</h1>
+            <p class="font-pixel text-xs text-fnaf-neonpurple mt-2">¡CUMPLE 3 AÑOS!</p>
+        </div>
+
+        <!-- Arcade Start Button Pass -->
+        <div class="w-full max-w-sm cursor-pointer group px-4 text-center" onclick="openInvitation()">
+            <div
+                class="fnaf-card rounded-3xl p-6 text-center shadow-2xl group-hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+                <div class="absolute inset-0 checkered-border opacity-20"></div>
+
+                <div class="relative z-10">
+                    <div
+                        class="inline-block px-3 py-1 rounded-full bg-fnaf-redaccent/30 text-fnaf-gold text-[10px] font-pixel mb-4 border border-fnaf-redaccent">
+                        LEVEL 3 UNLOCKED
+                    </div>
+
+                    <h3 class="font-fun text-xl font-bold text-white mb-1">¡Tienes un Pase de Juego Especial!</h3>
+                    <p class="text-xs text-gray-300 mb-6">Presiona el botón para ingresar a la fiesta</p>
+
+                    <div
+                        class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-fnaf-gold via-orange-500 to-fnaf-redaccent text-stone-950 font-pixel text-xs font-bold rounded-2xl btn-neon-pulse shadow-xl tracking-wider uppercase">
+                        <i data-lucide="gamepad-2" class="w-5 h-5"></i>
+                        <span>INSERT COIN / START</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION CONTENT -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto min-h-screen bg-fnaf-darkbg shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x-2 border-fnaf-purple/40">
+
+        <!-- HERO SECTION -->
+        <section
+            class="relative min-h-[75vh] flex flex-col justify-between items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(12,7,20,0.4), rgba(12,7,20,0.95)), url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1000&q=80');">
+
+            <!-- Checkered banner top -->
+            <div class="w-full h-4 checkered-border opacity-60 rounded-b-md"></div>
+
+            <div class="my-auto py-6 relative z-10">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-fnaf-purple/80 backdrop-blur-md text-[11px] font-pixel text-fnaf-gold mb-4 border border-fnaf-gold shadow-lg">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-fnaf-cyan"></i>
+                    <span>FAZBEAR BIRTHDAY BASH</span>
+                </div>
+
+                <h1 id="hero-child-name"
+                    class="font-fun text-6xl md:text-7xl font-extrabold text-white my-2 leading-none neon-gold-text">
+                    Mateo
+                </h1>
+
+                <div
+                    class="inline-block mt-2 px-6 py-2 bg-gradient-to-r from-fnaf-purple to-fnaf-redaccent rounded-2xl border-2 border-fnaf-gold shadow-lg">
+                    <span id="hero-age-text" class="font-pixel text-lg font-bold text-white tracking-widest">¡MIS 3
+                        AÑOS!</span>
+                </div>
+
+                <p id="hero-quote"
+                    class="text-fnaf-cyan font-fun text-sm md:text-base mt-5 max-w-xs mx-auto leading-relaxed font-semibold">
+                    "¡Prepárate para una tarde llena de juegos, piñata, pizza y mucha diversión!"
+                </p>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="pb-2 animate-bounce text-fnaf-gold">
+                <i data-lucide="chevron-down" class="w-8 h-8 mx-auto"></i>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER SECTION -->
+        <section class="px-6 py-8 text-center border-y-2 border-fnaf-purple/30 bg-fnaf-cardbg/80 relative">
+            <h2 class="font-pixel text-[10px] text-fnaf-cyan tracking-widest uppercase mb-1">CONTEO REGRESIVO</h2>
+            <p class="font-fun text-2xl font-bold text-white mb-5">El Show Comienza En:</p>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 md:gap-3 max-w-sm mx-auto">
+                <div class="fnaf-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="font-pixel text-xl font-bold text-fnaf-gold">00</span>
+                    <span class="text-[9px] font-pixel text-gray-300 mt-1 uppercase">Días</span>
+                </div>
+                <div class="fnaf-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="font-pixel text-xl font-bold text-fnaf-gold">00</span>
+                    <span class="text-[9px] font-pixel text-gray-300 mt-1 uppercase">Horas</span>
+                </div>
+                <div class="fnaf-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="font-pixel text-xl font-bold text-fnaf-gold">00</span>
+                    <span class="text-[9px] font-pixel text-gray-300 mt-1 uppercase">Min</span>
+                </div>
+                <div class="fnaf-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="font-pixel text-xl font-bold text-fnaf-gold">00</span>
+                    <span class="text-[9px] font-pixel text-gray-300 mt-1 uppercase">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOSTS / PARENTS SECTION -->
+        <section class="px-6 py-8 space-y-6">
+            <div class="fnaf-card-gold rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-fnaf-gold/20 flex items-center justify-center text-fnaf-gold mb-3 border border-fnaf-gold">
+                    <i data-lucide="crown" class="w-6 h-6"></i>
+                </div>
+                <span class="font-pixel text-[9px] text-fnaf-cyan uppercase tracking-wider">MIS PAPÁS Y
+                    ANFITRIONES</span>
+                <p id="parents-names" class="font-fun text-xl font-bold text-white mt-1">Carlos & Sofia</p>
+                <p class="text-xs text-gray-300 mt-1">¡Tienen todo listo para recibirte en la pizzería de juegos!</p>
+            </div>
+
+            <!-- LOCATIONS SECTION WITH GOOGLE MAPS -->
+            <!-- LOCATION 1: CEREMONY / MISA (OPTIONAL OR PARTY MAIN) -->
+            <div class="fnaf-card rounded-3xl p-6 text-center border-t-4 border-fnaf-purple">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-fnaf-purple/30 flex items-center justify-center text-fnaf-neonpurple mb-3">
+                    <i data-lucide="church" class="w-6 h-6"></i>
+                </div>
+                <span class="font-pixel text-[9px] text-fnaf-neonpurple uppercase tracking-wider">MISA DE ACCIÓN DE
+                    GRACIAS</span>
+                <h3 id="church-name" class="font-fun text-2xl font-bold my-1 text-white">Parroquia de San Miguel</h3>
+
+                <p id="ceremony-date" class="text-xs font-pixel text-fnaf-gold my-2">Sábado, 24 de Octubre, 2026</p>
+
+                <div
+                    class="flex justify-center items-center gap-2 text-xs text-white mb-4 bg-fnaf-darkbg/80 py-2 px-4 rounded-full w-fit mx-auto border border-fnaf-purple/50">
+                    <i data-lucide="clock" class="w-4 h-4 text-fnaf-cyan"></i>
+                    <span id="church-time">03:00 PM</span>
+                </div>
+
+                <p id="church-address" class="text-xs text-gray-300 mb-5 leading-relaxed">Av. de los Ángeles #120, Col.
+                    Jardines</p>
+
+                <!-- MAP BUTTON CHURCH -->
+                <a id="church-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gradient-to-r from-fnaf-purple to-purple-800 hover:from-purple-600 hover:to-fnaf-purple text-white text-xs font-pixel uppercase rounded-xl transition duration-300 shadow-lg group">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-fnaf-gold group-hover:animate-bounce"></i>
+                    <span>VER MISA EN GOOGLE MAPS</span>
+                </a>
+            </div>
+
+            <!-- LOCATION 2: FIESTA / SALÓN -->
+            <div class="fnaf-card-gold rounded-3xl p-6 text-center border-t-4 border-fnaf-gold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-fnaf-gold/20 flex items-center justify-center text-fnaf-gold mb-3">
+                    <i data-lucide="party-popper" class="w-6 h-6"></i>
+                </div>
+                <span class="font-pixel text-[9px] text-fnaf-gold uppercase tracking-wider">LA GRAN FIESTA DE
+                    JUEGOS</span>
+                <h3 id="reception-name" class="font-fun text-2xl font-bold my-1 text-white">Salón de Fiestas "Fazbear
+                    Arcade"</h3>
+
+                <div
+                    class="flex justify-center items-center gap-2 text-xs text-white my-3 bg-fnaf-darkbg/80 py-2 px-4 rounded-full w-fit mx-auto border border-fnaf-gold/50">
+                    <i data-lucide="clock" class="w-4 h-4 text-fnaf-gold"></i>
+                    <span id="reception-time">05:00 PM</span>
+                </div>
+
+                <p id="reception-address" class="text-xs text-gray-300 mb-5 leading-relaxed">Calle Diversión #300, Col.
+                    Arcade Center</p>
+
+                <!-- MAP BUTTON RECEPTION -->
+                <a id="reception-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gradient-to-r from-fnaf-gold via-amber-500 to-orange-500 hover:from-amber-400 hover:to-fnaf-gold text-stone-950 text-xs font-pixel font-bold uppercase rounded-xl transition duration-300 shadow-lg group">
+                    <i data-lucide="map-marked-alt" class="w-4 h-4 text-stone-950 group-hover:animate-bounce"></i>
+                    <span>VER FIESTA EN GOOGLE MAPS</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ITINERARY / SHOW TIMELINE -->
+        <section class="px-6 py-8 bg-fnaf-cardbg/50 border-y-2 border-fnaf-purple/30">
+            <h2 class="font-pixel text-[10px] text-fnaf-cyan tracking-widest text-center uppercase mb-1">PROGRAMA DE
+                SHOWS</h2>
+            <p class="font-fun text-2xl font-bold text-white text-center mb-6">Itinerario de la Fiesta</p>
+
+            <div class="relative border-l-2 border-fnaf-gold/50 ml-4 md:ml-8 space-y-6">
+                <!-- Step 1 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-fnaf-gold border-2 border-fnaf-darkbg">
+                    </div>
+                    <span class="font-pixel text-[10px] text-fnaf-cyan">05:00 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Llegada & Tokens de Arcade</h4>
+                    <p class="text-xs text-gray-300">Bienvenida a los amiguitos y área de juegos.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-fnaf-neonpurple border-2 border-fnaf-darkbg">
+                    </div>
+                    <span class="font-pixel text-[10px] text-fnaf-cyan">06:00 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Show Especial de Animación</h4>
+                    <p class="text-xs text-gray-300">Juegos interactivos, premios y botargas infantiles.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-fnaf-gold border-2 border-fnaf-darkbg">
+                    </div>
+                    <span class="font-pixel text-[10px] text-fnaf-cyan">07:00 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Tiempo de Pizza & Nuggets</h4>
+                    <p class="text-xs text-gray-300">Banquete para los niños y papás.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-fnaf-redaccent border-2 border-fnaf-darkbg">
+                    </div>
+                    <span class="font-pixel text-[10px] text-fnaf-cyan">08:00 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Rompiendo la Piñata & Pastel</h4>
+                    <p class="text-xs text-gray-300">Canto de mañanitas y pastel de 3 años.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DRESS CODE & GIFT REGISTRY -->
+        <section class="px-6 py-8 space-y-6">
+            <div class="fnaf-card rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-fnaf-purple/30 flex items-center justify-center text-fnaf-neonpurple mb-3">
+                    <i data-lucide="shirt" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-fun text-xl font-bold mb-1 text-white">Código de Vestimenta</h3>
+                <p id="dress-code-title" class="font-pixel text-[10px] text-fnaf-gold mb-2">CASUAL O DISFRAZ LIBRE FNAF
+                </p>
+                <p id="dress-code-desc" class="text-xs text-gray-300 leading-relaxed">
+                    Ven cómodo para jugar o con tu playera/disfraz favorito de Five Nights at Freddy's.
+                </p>
+            </div>
+
+            <!-- GIFT REGISTRY / LLUVIA DE SOBRES -->
+            <div class="fnaf-card-gold rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-fnaf-gold/20 flex items-center justify-center text-fnaf-gold mb-3">
+                    <i data-lucide="gift" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-fun text-xl font-bold mb-1 text-white">Mesa de Regalos</h3>
+                <p class="text-xs text-gray-300 mb-4">
+                    Tu presencia es el mejor regalo para Mateo. Si deseas darle un detalle adicional:
+                </p>
+                <div class="flex flex-col gap-3">
+                    <button onclick="openBankModal()"
+                        class="w-full py-3.5 px-4 bg-fnaf-darkbg/90 border border-fnaf-gold/50 hover:border-fnaf-gold rounded-xl text-xs text-white flex items-center justify-between transition shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-fnaf-gold"></i>
+                            <span class="font-fun font-bold">Lluvia de Sobres / Transferencia</span>
+                        </span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-fnaf-cyan"></i>
+                    </button>
+                    <a id="gift-store-link" href="#" target="_blank"
+                        class="w-full py-3.5 px-4 bg-fnaf-darkbg/90 border border-fnaf-gold/50 hover:border-fnaf-gold rounded-xl text-xs text-white flex items-center justify-between transition shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-fnaf-gold"></i>
+                            <span class="font-fun font-bold">Mesa de Regalos Juguetería</span>
+                        </span>
+                        <i data-lucide="external-link" class="w-3.5 h-3.5 text-fnaf-cyan"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHOTO GALLERY (ARCADE FRAMES) -->
+        <section class="px-6 py-8 bg-fnaf-cardbg/40 border-y-2 border-fnaf-purple/30">
+            <h2 class="font-pixel text-[10px] text-fnaf-cyan tracking-widest text-center uppercase mb-1">MOMENTOS
+                DIVERTIDOS</h2>
+            <p class="font-fun text-2xl font-bold text-white text-center mb-6">Galería del Cumpleañero</p>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="overflow-hidden rounded-2xl shadow-lg h-44 bg-fnaf-darkbg border-2 border-fnaf-gold p-1">
+                    <img id="gallery-img-1"
+                        src="https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=600&q=80"
+                        alt="Foto Mateo 1"
+                        class="w-full h-full object-cover rounded-xl transform hover:scale-105 transition duration-500">
+                </div>
+                <div
+                    class="overflow-hidden rounded-2xl shadow-lg h-44 bg-fnaf-darkbg border-2 border-fnaf-neonpurple p-1">
+                    <img id="gallery-img-2"
+                        src="https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=600&q=80"
+                        alt="Foto Mateo 2"
+                        class="w-full h-full object-cover rounded-xl transform hover:scale-105 transition duration-500">
+                </div>
+            </div>
+        </section>
+
+        <!-- DUAL WHATSAPP RSVP FORM -->
+        <section class="px-6 py-10 bg-fnaf-purple/10">
+            <div class="max-w-md mx-auto text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 border border-emerald-500">
+                    <i data-lucide="message-circle" class="w-6 h-6"></i>
+                </div>
+                <h2 class="font-fun text-2xl font-bold text-white mb-1">Confirmar Asistencia</h2>
+                <p class="text-xs text-gray-300 mb-6">Por favor confirma antes del 15 de Octubre</p>
+
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-[11px] font-pixel text-fnaf-cyan uppercase mb-1">Nombre del Invitado /
+                            Familia *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Fam. Ramírez Torres"
+                            class="w-full px-4 py-3 rounded-xl bg-fnaf-darkbg border border-fnaf-purple/50 focus:ring-2 focus:ring-fnaf-gold text-white outline-none text-sm transition">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-pixel text-fnaf-cyan uppercase mb-1">¿Asistirás?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl bg-fnaf-darkbg border border-fnaf-purple/50 focus:ring-2 focus:ring-fnaf-gold text-white outline-none text-sm transition">
+                                <option value="¡Sí, ahí estaremos con mucho gusto!">¡Sí, asistiré!</option>
+                                <option value="Lo sentimos, no podremos asistir">No podré asistir</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-pixel text-fnaf-cyan uppercase mb-1">Pases</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl bg-fnaf-darkbg border border-fnaf-purple/50 focus:ring-2 focus:ring-fnaf-gold text-white outline-none text-sm transition">
+                                <option value="1 Adulto">1 Adulto</option>
+                                <option value="1 Adulto + 1 Niño">1 Adulto + 1 Niño</option>
+                                <option value="2 Adultos + 1 Niño">2 Adultos + 1 Niño</option>
+                                <option value="Familia (4+ integrantes)">Familia (4+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-pixel text-fnaf-cyan uppercase mb-1">Nota / Alergias de los
+                            Niños 🍕</label>
+                        <input type="text" id="child-note" placeholder="Ej. 1 niño (3 años) / Alergia al huevo"
+                            class="w-full px-4 py-3 rounded-xl bg-fnaf-darkbg border border-fnaf-purple/50 focus:ring-2 focus:ring-fnaf-gold text-white outline-none text-sm transition">
+                    </div>
+
+                    <!-- DUAL CONTACT SELECTOR -->
+                    <div>
+                        <label class="block text-[11px] font-pixel text-fnaf-gold uppercase mb-2">Enviar confirmación a:
+                            *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label
+                                class="relative flex items-center p-3 border-2 rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-fnaf-purple/40 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-fnaf-darkbg">
+                                <input type="radio" name="organizer" value="contact1" checked
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact1-label-name">Mamá (Sofia)</p>
+                                    <p class="text-[10px] text-fnaf-cyan" id="contact1-label-role">Contacto 1</p>
+                                </div>
+                            </label>
+
+                            <label
+                                class="relative flex items-center p-3 border-2 rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-fnaf-purple/40 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-fnaf-darkbg">
+                                <input type="radio" name="organizer" value="contact2"
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact2-label-name">Papá (Carlos)</p>
+                                    <p class="text-[10px] text-fnaf-cyan" id="contact2-label-role">Contacto 2</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-pixel font-bold rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest mt-4">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>CONFIRMAR POR WHATSAPP</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-8 text-center bg-fnaf-darkbg border-t-2 border-fnaf-purple/30 text-white px-4">
+            <div class="w-12 h-4 checkered-border mx-auto mb-3"></div>
+            <p id="footer-child-name" class="font-fun text-2xl font-bold neon-gold-text">Mateo</p>
+            <p class="font-pixel text-[9px] text-fnaf-cyan mt-1">★ 3RD BIRTHDAY FAZBEAR BASH ★</p>
+        </footer>
+
+    </main>
+
+    <!-- BANK DETAILS MODAL -->
+    <div id="bank-modal"
+        class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="fnaf-card-gold rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl transform scale-95 transition-transform duration-300"
+            id="bank-modal-card">
+            <button onclick="closeBankModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div
+                class="w-12 h-12 mx-auto rounded-full bg-fnaf-gold/20 flex items-center justify-center text-fnaf-gold mb-3 border border-fnaf-gold">
+                <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-fun text-xl font-bold mb-1 text-white">Datos Bancarios</h3>
+            <p class="text-xs text-gray-300 mb-4">Transferencia para el regalo de Mateo:</p>
+
+            <div class="bg-fnaf-darkbg/90 rounded-2xl p-4 text-left text-xs space-y-3 border border-fnaf-gold/30 mb-4">
+                <div>
+                    <span class="text-fnaf-cyan block text-[10px] font-pixel uppercase">Banco</span>
+                    <span id="bank-name" class="font-semibold text-white">BBVA México</span>
+                </div>
+                <div>
+                    <span class="text-fnaf-cyan block text-[10px] font-pixel uppercase">Titular</span>
+                    <span id="bank-holder" class="font-semibold text-white">Sofia M. (Mamá)</span>
+                </div>
+                <div>
+                    <span class="text-fnaf-cyan block text-[10px] font-pixel uppercase">CLABE Interbancaria</span>
+                    <span id="bank-clabe" class="font-mono font-bold text-fnaf-gold">0121 8001 2345 6789 01</span>
+                </div>
+            </div>
+
+            <button onclick="copyBankClabe()"
+                class="w-full py-3.5 bg-gradient-to-r from-fnaf-gold to-orange-500 text-stone-950 font-pixel font-bold text-xs uppercase rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+                <span>COPIAR CLABE</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           CONFIGURACIÓN GLOBAL DE LA FIESTA DE 3 AÑOS (FNAF THEME)
+           ========================================================================== */
+        const CONFIG = {
+            childName: "Mateo",
+            ageText: "¡MIS 3 AÑOS!",
+            quote: '"¡Prepárate para una tarde llena de juegos, piñata, pizza y mucha diversión!"',
+            dateISO: "2026-10-24T15:00:00", // Formato ISO: YYYY-MM-DDTHH:MM:SS
+            dateText: "Sábado, 24 de Octubre de 2026",
+
+            parents: "Carlos & Sofia",
+
+            church: {
+                name: "Parroquia de San Miguel",
+                time: "03:00 PM",
+                address: "Av. de los Ángeles #120, Col. Jardines",
+                mapUrl: "https://maps.google.com/?q=Parroquia+San+Miguel"
+            },
+
+            reception: {
+                name: "Salón de Fiestas 'Fazbear Arcade'",
+                time: "05:00 PM",
+                address: "Calle Diversión #300, Col. Arcade Center",
+                mapUrl: "https://maps.google.com/?q=Salon+De+Fiestas+Infantiles"
+            },
+
+            dressCode: {
+                title: "CASUAL O DISFRAZ LIBRE FNAF",
+                description: "Ven cómodo para jugar o con tu playera/disfraz favorito de Five Nights at Freddy's."
+            },
+
+            giftRegistryUrl: "https://www.juliocepeda.com",
+
+            bankDetails: {
+                bank: "BBVA México",
+                holder: "Sofia M. (Mamá)",
+                clabe: "0121 8001 2345 6789 01"
+            },
+
+            // CONTACTOS DUALES DE WHATSAPP CON CLAVE DE PAÍS
+            contact1: {
+                name: "Sofia",
+                role: "Mamá",
+                phone: "5215512345678" // Ejemplo México (+52 1 ...)
+            },
+            contact2: {
+                name: "Carlos",
+                role: "Papá",
+                phone: "5215512345679"
+            }
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        // Apply Configuration
+        function applyConfig() {
+            document.getElementById('cover-child-name').innerText = CONFIG.childName;
+            document.getElementById('hero-child-name').innerText = CONFIG.childName;
+            document.getElementById('footer-child-name').innerText = CONFIG.childName;
+            document.getElementById('hero-age-text').innerText = CONFIG.ageText;
+            document.getElementById('hero-quote').innerText = CONFIG.quote;
+
+            document.getElementById('parents-names').innerText = CONFIG.parents;
+
+            // Church
+            document.getElementById('church-name').innerText = CONFIG.church.name;
+            document.getElementById('ceremony-date').innerText = CONFIG.dateText;
+            document.getElementById('church-time').innerText = CONFIG.church.time;
+            document.getElementById('church-address').innerText = CONFIG.church.address;
+            document.getElementById('church-map-link').href = CONFIG.church.mapUrl;
+
+            // Reception
+            document.getElementById('reception-name').innerText = CONFIG.reception.name;
+            document.getElementById('reception-time').innerText = CONFIG.reception.time;
+            document.getElementById('reception-address').innerText = CONFIG.reception.address;
+            document.getElementById('reception-map-link').href = CONFIG.reception.mapUrl;
+
+            // Dress code
+            document.getElementById('dress-code-title').innerText = CONFIG.dressCode.title;
+            document.getElementById('dress-code-desc').innerText = CONFIG.dressCode.description;
+
+            // Gifts
+            document.getElementById('gift-store-link').href = CONFIG.giftRegistryUrl;
+
+            // Bank
+            document.getElementById('bank-name').innerText = CONFIG.bankDetails.bank;
+            document.getElementById('bank-holder').innerText = CONFIG.bankDetails.holder;
+            document.getElementById('bank-clabe').innerText = CONFIG.bankDetails.clabe;
+
+            // WhatsApp Contacts
+            document.getElementById('contact1-label-name').innerText = `${CONFIG.contact1.name}`;
+            document.getElementById('contact1-label-role').innerText = CONFIG.contact1.role;
+
+            document.getElementById('contact2-label-name').innerText = `${CONFIG.contact2.name}`;
+            document.getElementById('contact2-label-role').innerText = CONFIG.contact2.role;
+        }
+
+        // Generate Floating Arcade Stars
+        function createArcadeStars() {
+            const container = document.getElementById('stars-container');
+            for (let i = 0; i < 25; i++) {
+                const star = document.createElement('div');
+                star.classList.add('arcade-star');
+                const size = Math.random() * 5 + 3;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.animationDuration = `${Math.random() * 6 + 6}s`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                container.appendChild(star);
+            }
+        }
+
+        // Open Invitation
+        function openInvitation() {
+            const introScreen = document.getElementById('intro-screen');
+            const mainContent = document.getElementById('main-content');
+
+            introScreen.style.transform = 'translateY(-100vh)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 700);
+
+            startRetroArcadeAudio();
+
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#ffb703', '#9d4edd', '#00f5d4', '#ff0055']
+            });
+        }
+
+        // Synthesize 8-bit playful arcade music loop with Tone.js
+        function startRetroArcadeAudio() {
+            try {
+                Tone.start();
+                const synth = new Tone.Synth({
+                    oscillator: { type: "square" },
+                    envelope: { attack: 0.05, decay: 0.2, sustain: 0.2, release: 0.4 }
+                }).toDestination();
+                synth.volume.value = -16;
+
+                // Playful chiptune melody
+                const notes = ["C4", "E4", "G4", "C5", "G4", "E4", "A4", "F4", "D4", "G4"];
+                let step = 0;
+
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease(notes[step % notes.length], "8n", time);
+                    step++;
+                }, "0.3s");
+
+                Tone.Transport.bpm.value = 110;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startRetroArcadeAudio();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+            }
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.dateISO).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-pixel text-sm text-fnaf-gold">¡EL SHOW HA COMENZADO! 🎉</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Send RSVP via WhatsApp
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const childNote = document.getElementById('child-note').value.trim();
+            const selectedContact = document.querySelector('input[name="organizer"]:checked').value;
+
+            let targetPhone = CONFIG.contact1.phone;
+            let targetName = CONFIG.contact1.name;
+
+            if (selectedContact === 'contact2') {
+                targetPhone = CONFIG.contact2.phone;
+                targetName = CONFIG.contact2.name;
+            }
+
+            // Formatted text message
+            let textMessage = `*CONFIRMACIÓN - 3 AÑOS DE ${CONFIG.childName.toUpperCase()}* 🐻🍕\n\n`;
+            textMessage += `Hola *${targetName}*, confirmo mi asistencia a la fiesta:\n\n`;
+            textMessage += `👤 *Invitado / Familia:* ${name}\n`;
+            textMessage += `🎮 *Respuesta:* ${attendance}\n`;
+            textMessage += `🎟️ *Pases requeridos:* ${passes}\n`;
+            if (childNote !== "") {
+                textMessage += `🎈 *Nota niños / alergias:* ${childNote}\n`;
+            }
+            textMessage += `\n¡Listo para pasarla genial en el show! 🎂`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.5 }
+            });
+
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 400);
+        }
+
+        // Bank Modal
+        function openBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+
+        function closeBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+        }
+
+        function copyBankClabe() {
+            const clabe = CONFIG.bankDetails.clabe;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = clabe;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            // Toast feedback
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-fnaf-purple text-white px-5 py-2.5 rounded-full text-xs font-pixel shadow-2xl z-50 border border-fnaf-gold flex items-center gap-2";
+            toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> CLABE COPIADA CON ÉXITO`;
+            document.body.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => { toast.remove(); }, 2500);
+            closeBankModal();
+        }
+
+        // On Load Initialization
+        window.onload = function () {
+            applyConfig();
+            createArcadeStars();
+            updateCountdown();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+
+</html>

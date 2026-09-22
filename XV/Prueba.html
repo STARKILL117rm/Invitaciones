@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis XV Años - Invitación Digital</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tone.js for soft synthesized audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rosegold: {
+                            light: '#F4E0E2',
+                            DEFAULT: '#B76E79',
+                            dark: '#8C434E',
+                            accent: '#E0A9AF'
+                        },
+                        glam: {
+                            magenta: '#4A0E2E',
+                            gold: '#D4AF37',
+                            goldlight: '#F3E5AB',
+                            darkbg: '#0F0910'
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        cursive: ['Great Vibes', 'cursive'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0F0910;
+            color: #F3E5AB;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Glassmorphism styling */
+        .glass-card {
+            background: rgba(26, 15, 28, 0.75);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(224, 169, 175, 0.25);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .rosegold-gradient-text {
+            background: linear-gradient(135deg, #F4E0E2 0%, #E0A9AF 40%, #B76E79 70%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gold-sparkle-text {
+            background: linear-gradient(135deg, #FFF0B9 0%, #D4AF37 50%, #AA7C11 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Envelope animation styles */
+        .envelope-screen.open {
+            transform: translateY(-100vh);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Floating star sparkles */
+        @keyframes sparkleAnim {
+            0% {
+                transform: translateY(0) scale(0.5) rotate(0deg);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.2) rotate(180deg);
+                opacity: 0;
+            }
+        }
+
+        .sparkle-particle {
+            position: absolute;
+            pointer-events: none;
+            background: radial-gradient(circle, rgba(224, 169, 175, 0.9) 0%, rgba(212, 175, 55, 0) 70%);
+            border-radius: 50%;
+            animation: sparkleAnim 12s linear infinite;
+        }
+
+        /* Pulse effect */
+        @keyframes softPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(183, 110, 121, 0.5);
+            }
+
+            70% {
+                box-shadow: 0 0 0 16px rgba(183, 110, 121, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(183, 110, 121, 0);
+            }
+        }
+
+        .btn-pulse {
+            animation: softPulse 2s infinite;
+        }
+
+        /* Wax seal rotation */
+        .wax-seal {
+            background: radial-gradient(circle, #B76E79 0%, #4A0E2E 100%);
+            box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3), 0 8px 20px rgba(0, 0, 0, 0.6);
+            transition: transform 0.3s ease;
+        }
+
+        .wax-seal:hover {
+            transform: scale(1.08) rotate(5deg);
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen relative flex flex-col items-center justify-between selection:bg-rosegold selection:text-white">
+
+    <!-- Ambient Sparkles Background -->
+    <div id="sparkles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Music Control Floating Toggle Button -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Música de Fondo"
+        class="fixed top-5 right-5 z-50 bg-glam-magenta/90 hover:bg-glam-magenta text-rosegold-light p-3 rounded-full shadow-2xl border border-rosegold/40 transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i data-lucide="music" class="w-5 h-5"></i>
+    </button>
+
+    <!-- ENVELOPE / WAX SEAL COVER SCREEN -->
+    <div id="envelope-screen"
+        class="envelope-screen fixed inset-0 z-40 bg-glam-darkbg flex flex-col items-center justify-center p-4 transition-all duration-1000 border-b-2 border-rosegold/30">
+        <div class="text-center mb-8 px-4">
+            <div class="inline-block p-3 rounded-full bg-rosegold/10 text-rosegold mb-3">
+                <i data-lucide="sparkles" class="w-8 h-8"></i>
+            </div>
+            <p class="text-rosegold-accent tracking-[0.3em] text-xs uppercase mb-2 font-semibold">Mis XV Años</p>
+            <h1 id="cover-quince-name" class="text-white font-cursive text-5xl md:text-7xl rosegold-gradient-text">
+                Valentina</h1>
+        </div>
+
+        <!-- Envelope Wax Seal Trigger -->
+        <div class="w-full max-w-sm cursor-pointer group px-4 text-center" onclick="openEnvelope()">
+            <div
+                class="glass-card relative rounded-3xl p-8 text-center shadow-2xl border border-rosegold/40 group-hover:-translate-y-2 transition-all duration-500">
+
+                <!-- Wax Seal Element -->
+                <div
+                    class="wax-seal w-20 h-20 mx-auto mb-4 rounded-full border-2 border-glam-gold flex items-center justify-center cursor-pointer">
+                    <span class="font-cursive text-3xl text-glam-goldlight font-bold">XV</span>
+                </div>
+
+                <h3 class="text-white font-serif text-xl mb-1">Tienes una invitación especial</h3>
+                <p class="text-rosegold-accent text-[11px] uppercase tracking-widest mb-6">Toca el sello para abrir</p>
+
+                <div
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rosegold-dark via-rosegold to-rosegold-dark text-white font-bold text-xs rounded-full uppercase tracking-widest btn-pulse shadow-lg">
+                    <i data-lucide="mail-open" class="w-4 h-4"></i>
+                    <span>Abrir Invitación</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION CONTENT CONTAINER -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto min-h-screen bg-glam-darkbg shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x border-rosegold/20">
+
+        <!-- HERO SECTION -->
+        <section
+            class="relative min-h-[80vh] flex flex-col justify-between items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(15,9,16,0.3), rgba(15,9,16,0.95)), url('https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80');">
+
+            <div class="pt-8 text-rosegold-accent">
+                <i data-lucide="crown" class="w-10 h-10 mx-auto stroke-[1.5]"></i>
+            </div>
+
+            <div class="my-auto py-6">
+                <span
+                    class="inline-block px-5 py-1.5 rounded-full bg-glam-magenta/80 backdrop-blur-md text-[11px] tracking-[0.3em] uppercase text-rosegold-light font-semibold mb-4 border border-rosegold/30 shadow-lg">
+                    Mis Quince Años
+                </span>
+
+                <h1 id="hero-quince-name"
+                    class="text-6xl md:text-7xl font-cursive text-white my-2 leading-tight rosegold-gradient-text drop-shadow-md">
+                    Valentina
+                </h1>
+
+                <p id="hero-quote"
+                    class="text-rosegold-light/90 font-serif italic text-xs md:text-sm mt-3 max-w-xs mx-auto leading-relaxed">
+                    "Hay momentos en la vida que son inolvidables, pero compartirlos con quienes más amas los hace
+                    eternos."
+                </p>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="pb-4 animate-bounce text-rosegold-accent">
+                <i data-lucide="chevron-down" class="w-6 h-6 mx-auto"></i>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER SECTION -->
+        <section class="px-6 py-8 text-center border-y border-rosegold/10 bg-glam-magenta/20">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-rosegold-accent font-bold mb-1">Nos vemos en</h2>
+            <p class="font-serif text-2xl text-white mb-6">La Gran Noche</p>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 md:gap-3 max-w-sm mx-auto">
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center border border-rosegold/30">
+                    <span id="days" class="font-serif text-2xl font-bold text-white">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-rosegold-accent mt-1">Días</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center border border-rosegold/30">
+                    <span id="hours" class="font-serif text-2xl font-bold text-white">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-rosegold-accent mt-1">Horas</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center border border-rosegold/30">
+                    <span id="minutes" class="font-serif text-2xl font-bold text-white">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-rosegold-accent mt-1">Min</span>
+                </div>
+                <div class="glass-card rounded-2xl p-3 flex flex-col items-center border border-rosegold/30">
+                    <span id="seconds" class="font-serif text-2xl font-bold text-white">00</span>
+                    <span class="text-[9px] uppercase tracking-wider text-rosegold-accent mt-1">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAMILY & PADRINOS SECTION -->
+        <section class="px-6 py-10 space-y-6">
+            <div class="glass-card rounded-3xl p-6 text-center border border-rosegold/30">
+                <!-- Parents -->
+                <div class="mb-6">
+                    <div
+                        class="w-10 h-10 mx-auto rounded-full bg-rosegold/10 flex items-center justify-center text-rosegold mb-2">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-rosegold-accent font-bold">Con el amor de
+                        mis Padres</span>
+                    <p id="parents-names" class="font-serif text-lg text-white mt-1 font-semibold">Roberto Silva &
+                        Mariana Mendoza</p>
+                </div>
+
+                <div class="w-16 border-b border-rosegold/30 mx-auto my-4"></div>
+
+                <!-- Godparents -->
+                <div>
+                    <div
+                        class="w-10 h-10 mx-auto rounded-full bg-glam-gold/10 flex items-center justify-center text-glam-gold mb-2">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-[0.2em] text-glam-gold font-bold">Mis Padrinos de
+                        Honor</span>
+                    <p id="godparents-names" class="font-serif text-lg text-white mt-1 font-semibold">Fernando Morales &
+                        Beatriz Silva</p>
+                </div>
+            </div>
+
+            <!-- EVENT LOCATIONS & GOOGLE MAPS -->
+            <!-- LOCATION 1: CHURCH / CEREMONY -->
+            <div
+                class="glass-card rounded-3xl p-6 text-center border-t-4 border-rosegold hover:shadow-2xl transition duration-300">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-rosegold/20 flex items-center justify-center text-rosegold-light mb-3">
+                    <i data-lucide="church" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.25em] text-rosegold-accent font-bold">Misa de Acción de
+                    Gracias</span>
+                <h3 id="church-name" class="font-serif text-xl font-semibold my-1 text-white">Catedral Metropolitana
+                </h3>
+
+                <p id="ceremony-date" class="text-xs uppercase tracking-widest text-glam-goldlight font-medium mb-3">
+                    Sábado, 14 de Noviembre, 2026</p>
+
+                <div
+                    class="flex justify-center items-center gap-2 text-xs text-rosegold-light mb-4 bg-glam-magenta/40 py-2 px-4 rounded-full w-fit mx-auto border border-rosegold/30">
+                    <i data-lucide="clock" class="w-4 h-4 text-glam-gold"></i>
+                    <span id="church-time">05:00 PM</span>
+                </div>
+
+                <p id="church-address" class="text-xs text-gray-300 mb-5 leading-relaxed">Av. Reforma #100, Col. Centro
+                </p>
+
+                <!-- MAP BUTTON CHURCH -->
+                <a id="church-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gradient-to-r from-rosegold-dark to-glam-magenta hover:from-rosegold hover:to-rosegold-dark text-white text-xs uppercase tracking-widest font-semibold rounded-xl transition duration-300 shadow-lg group">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-glam-gold group-hover:animate-bounce"></i>
+                    <span>Ver Misa en Google Maps</span>
+                </a>
+            </div>
+
+            <!-- LOCATION 2: RECEPTION / FIESTA -->
+            <div
+                class="glass-card rounded-3xl p-6 text-center border-t-4 border-glam-gold hover:shadow-2xl transition duration-300">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-glam-gold/20 flex items-center justify-center text-glam-gold mb-3">
+                    <i data-lucide="glass-water" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.25em] text-glam-gold font-bold">Recepción & Fiesta</span>
+                <h3 id="reception-name" class="font-serif text-xl font-semibold my-1 text-white">Salon & Garden Real
+                    Palace</h3>
+
+                <div
+                    class="flex justify-center items-center gap-2 text-xs text-rosegold-light my-3 bg-glam-magenta/40 py-2 px-4 rounded-full w-fit mx-auto border border-rosegold/30">
+                    <i data-lucide="clock" class="w-4 h-4 text-glam-gold"></i>
+                    <span id="reception-time">07:30 PM</span>
+                </div>
+
+                <p id="reception-address" class="text-xs text-gray-300 mb-5 leading-relaxed">Calzada de las Palmas #450,
+                    Fracc. El Real</p>
+
+                <!-- MAP BUTTON RECEPTION -->
+                <a id="reception-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gradient-to-r from-glam-gold to-yellow-600 hover:from-yellow-500 hover:to-glam-gold text-stone-900 text-xs uppercase tracking-widest font-bold rounded-xl transition duration-300 shadow-lg group">
+                    <i data-lucide="map-marked-alt" class="w-4 h-4 text-stone-900 group-hover:animate-bounce"></i>
+                    <span>Ver Recepción en Google Maps</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ITINERARY TIMELINE SECTION -->
+        <section class="px-6 py-10 bg-glam-magenta/10 border-y border-rosegold/10">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-rosegold-accent font-bold text-center mb-1">Programa
+            </h2>
+            <p class="font-serif text-2xl text-white text-center mb-8">Itinerario del Evento</p>
+
+            <div class="relative border-l-2 border-rosegold/30 ml-4 md:ml-8 space-y-6">
+                <!-- Item 1 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-rosegold border-2 border-glam-darkbg">
+                    </div>
+                    <span class="text-xs font-bold text-glam-gold">05:00 PM</span>
+                    <h4 class="font-serif text-lg font-semibold text-white">Misa de Acción de Gracias</h4>
+                    <p class="text-xs text-gray-400">Ceremonia religiosa en la Catedral.</p>
+                </div>
+                <!-- Item 2 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-rosegold border-2 border-glam-darkbg">
+                    </div>
+                    <span class="text-xs font-bold text-glam-gold">07:30 PM</span>
+                    <h4 class="font-serif text-lg font-semibold text-white">Recepción de Invitados</h4>
+                    <p class="text-xs text-gray-400">Coctel de bienvenida y asignación de mesas.</p>
+                </div>
+                <!-- Item 3 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-rosegold border-2 border-glam-darkbg">
+                    </div>
+                    <span class="text-xs font-bold text-glam-gold">08:30 PM</span>
+                    <h4 class="font-serif text-lg font-semibold text-white">Entrada Triunfal & Vals</h4>
+                    <p class="text-xs text-gray-400">Presentación oficial y baile estelar de la Quinceañera.</p>
+                </div>
+                <!-- Item 4 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-rosegold border-2 border-glam-darkbg">
+                    </div>
+                    <span class="text-xs font-bold text-glam-gold">09:15 PM</span>
+                    <h4 class="font-serif text-lg font-semibold text-white">Brindis & Cena</h4>
+                    <p class="text-xs text-gray-400">Banquete de gala y palabras de agradecimiento.</p>
+                </div>
+                <!-- Item 5 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-rosegold border-2 border-glam-darkbg">
+                    </div>
+                    <span class="text-xs font-bold text-glam-gold">10:30 PM</span>
+                    <h4 class="font-serif text-lg font-semibold text-white">Apertura de Pista & Baile</h4>
+                    <p class="text-xs text-gray-400">¡Inicia la gran fiesta con DJ en vivo!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DRESS CODE & RESTRICTIONS -->
+        <section class="px-6 py-10 space-y-6">
+            <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-rosegold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-rosegold/20 flex items-center justify-center text-rosegold-light mb-3">
+                    <i data-lucide="shirt" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1 text-white">Código de Vestimenta</h3>
+                <p id="dress-code-title" class="text-xs uppercase tracking-widest text-glam-gold font-bold mb-2">
+                    Rigurosa Etiqueta / Gala</p>
+                <p id="dress-code-desc" class="text-xs text-gray-300 leading-relaxed mb-3">
+                    Vestido largo para damas y traje formal o esmoquin para caballeros.
+                </p>
+                <div
+                    class="bg-glam-magenta/40 border border-rosegold/30 rounded-2xl p-3 text-[11px] text-rosegold-light flex items-center justify-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-glam-gold flex-shrink-0"></i>
+                    <span><strong>Nota:</strong> Reservado el color blanco y el tono del vestido de la Quinceañera
+                        (Púrpura / Rose Gold).</span>
+                </div>
+            </div>
+
+            <!-- GIFT REGISTRY / LLUVIA DE SOBRES -->
+            <div class="glass-card rounded-3xl p-6 text-center border-t-4 border-glam-gold">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-glam-gold/20 flex items-center justify-center text-glam-gold mb-3">
+                    <i data-lucide="gift" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-serif text-xl font-semibold mb-1 text-white">Mesa de Regalos</h3>
+                <p class="text-xs text-gray-300 mb-4">
+                    Tu presencia es mi mejor regalo. Si deseas hacerme un detalle especial, sugiero la modalidad de
+                    <strong>Lluvia de Sobres</strong> o transferencia:
+                </p>
+                <div class="flex flex-col gap-3">
+                    <button onclick="openBankModal()"
+                        class="w-full py-3.5 px-4 bg-glam-darkbg/90 border border-rosegold/30 hover:border-glam-gold rounded-xl text-xs text-white flex items-center justify-between transition shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="building-2" class="w-4 h-4 text-glam-gold"></i>
+                            <span>Transferencia Bancaria</span>
+                        </span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-rosegold-accent"></i>
+                    </button>
+                    <a id="gift-store-link" href="#" target="_blank"
+                        class="w-full py-3.5 px-4 bg-glam-darkbg/90 border border-rosegold/30 hover:border-glam-gold rounded-xl text-xs text-white flex items-center justify-between transition shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 text-glam-gold"></i>
+                            <span>Mesa de Regalos Online</span>
+                        </span>
+                        <i data-lucide="external-link" class="w-3.5 h-3.5 text-rosegold-accent"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PHOTO GALLERY -->
+        <section class="px-6 py-10 bg-white/5 border-y border-rosegold/10">
+            <h2 class="text-[10px] uppercase tracking-[0.3em] text-rosegold-accent font-bold text-center mb-1">Recuerdos
+            </h2>
+            <p class="font-serif text-2xl text-white text-center mb-6">Galería de Fotos</p>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="overflow-hidden rounded-2xl shadow-lg h-48 bg-stone-900 border border-rosegold/20">
+                    <img id="gallery-img-1"
+                        src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80"
+                        alt="Valentina 1"
+                        class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+                </div>
+                <div class="overflow-hidden rounded-2xl shadow-lg h-48 bg-stone-900 border border-rosegold/20">
+                    <img id="gallery-img-2"
+                        src="https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=600&q=80"
+                        alt="Valentina 2"
+                        class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+                </div>
+            </div>
+        </section>
+
+        <!-- DUAL WHATSAPP RSVP SECTION -->
+        <section class="px-6 py-10 bg-glam-magenta/20">
+            <div class="max-w-md mx-auto text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+                    <i data-lucide="message-circle" class="w-6 h-6"></i>
+                </div>
+                <h2 class="font-serif text-2xl font-bold text-white mb-1">Confirmar Asistencia</h2>
+                <p class="text-xs text-gray-300 mb-6">Agradecemos confirmar antes del 1 de Noviembre</p>
+
+                <!-- RSVP FORM -->
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-rosegold-accent uppercase tracking-wider mb-1">Nombre
+                            Completo *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Familia Silva Ramos"
+                            class="w-full px-4 py-3 rounded-xl bg-glam-darkbg border border-rosegold/30 focus:ring-2 focus:ring-rosegold text-white outline-none text-sm transition">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block text-[11px] font-semibold text-rosegold-accent uppercase tracking-wider mb-1">¿Asistirás?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl bg-glam-darkbg border border-rosegold/30 focus:ring-2 focus:ring-rosegold text-white outline-none text-sm transition">
+                                <option value="¡Sí, asistiré con mucho gusto!">¡Sí, asistiré!</option>
+                                <option value="Lo siento, no podré asistir">No podré asistir</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-semibold text-rosegold-accent uppercase tracking-wider mb-1">Pases</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl bg-glam-darkbg border border-rosegold/30 focus:ring-2 focus:ring-rosegold text-white outline-none text-sm transition">
+                                <option value="1 Persona">1 Persona</option>
+                                <option value="2 Personas">2 Personas</option>
+                                <option value="3 Personas">3 Personas</option>
+                                <option value="Familia (4+)">Familia (4+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-rosegold-accent uppercase tracking-wider mb-1">Canción
+                            sugerida para el DJ 🎵</label>
+                        <input type="text" id="song-request" placeholder="Ej. Pop / Cumbia - Artista o Canción"
+                            class="w-full px-4 py-3 rounded-xl bg-glam-darkbg border border-rosegold/30 focus:ring-2 focus:ring-rosegold text-white outline-none text-sm transition">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-rosegold-accent uppercase tracking-wider mb-1">Mensaje
+                            para Valentina</label>
+                        <textarea id="message" rows="2" placeholder="Un deseo especial..."
+                            class="w-full px-4 py-3 rounded-xl bg-glam-darkbg border border-rosegold/30 focus:ring-2 focus:ring-rosegold text-white outline-none text-sm transition"></textarea>
+                    </div>
+
+                    <!-- DUAL CONTACT SELECTOR -->
+                    <div>
+                        <label
+                            class="block text-[11px] font-semibold text-rosegold-accent uppercase tracking-wider mb-2">Enviar
+                            confirmación a: *</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-rosegold/30 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-glam-darkbg">
+                                <input type="radio" name="organizer" value="contact1" checked
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact1-label-name">Mamá (Mariana)</p>
+                                    <p class="text-[10px] text-rosegold-accent" id="contact1-label-role">Contacto 1</p>
+                                </div>
+                            </label>
+
+                            <label
+                                class="relative flex items-center p-3 border rounded-xl cursor-pointer hover:bg-emerald-950/40 transition border-rosegold/30 has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-900/30 bg-glam-darkbg">
+                                <input type="radio" name="organizer" value="contact2"
+                                    class="text-emerald-500 focus:ring-emerald-500">
+                                <div class="ml-2 text-xs">
+                                    <p class="font-bold text-white" id="contact2-label-name">Papá (Roberto)</p>
+                                    <p class="text-[10px] text-rosegold-accent" id="contact2-label-role">Contacto 2</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest mt-4">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>Enviar por WhatsApp</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-10 text-center bg-glam-darkbg border-t border-rosegold/20 text-white px-4">
+            <p id="footer-quince-name" class="font-cursive text-4xl rosegold-gradient-text mb-1">Valentina</p>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-rosegold-accent">Mis XV Años • 2026</p>
+        </footer>
+
+    </main>
+
+    <!-- BANK DETAILS MODAL -->
+    <div id="bank-modal"
+        class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-card rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl border border-rosegold/40 transform scale-95 transition-transform duration-300"
+            id="bank-modal-card">
+            <button onclick="closeBankModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div
+                class="w-12 h-12 mx-auto rounded-full bg-glam-gold/20 flex items-center justify-center text-glam-gold mb-3">
+                <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-serif text-xl font-bold mb-1 text-white">Datos Bancarios</h3>
+            <p class="text-xs text-gray-300 mb-4">Transferencia para el regalo de Valentina:</p>
+
+            <div class="bg-glam-darkbg/90 rounded-2xl p-4 text-left text-xs space-y-3 border border-rosegold/20 mb-4">
+                <div>
+                    <span class="text-rosegold-accent block text-[10px] uppercase">Banco</span>
+                    <span id="bank-name" class="font-semibold text-white">BBVA México</span>
+                </div>
+                <div>
+                    <span class="text-rosegold-accent block text-[10px] uppercase">Titular</span>
+                    <span id="bank-holder" class="font-semibold text-white">Mariana Mendoza</span>
+                </div>
+                <div>
+                    <span class="text-rosegold-accent block text-[10px] uppercase">CLABE Interbancaria</span>
+                    <span id="bank-clabe" class="font-mono font-bold text-glam-gold">0121 8001 9876 5432 10</span>
+                </div>
+            </div>
+
+            <button onclick="copyBankClabe()"
+                class="w-full py-3 bg-gradient-to-r from-glam-gold to-yellow-600 text-stone-900 font-bold text-xs uppercase tracking-widest rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+                <span>Copiar CLABE</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           CONFIGURACIÓN GLOBAL Y PERSONALIZABLE DE LA QUINCEAÑERA
+           ========================================================================== */
+        const CONFIG = {
+            quinceName: "Valentina",
+            quote: '"Hay momentos en la vida que son inolvidables, pero compartirlos con quienes más amas los hace eternos."',
+            dateISO: "2026-11-14T17:00:00", // Formato ISO: YYYY-MM-DDTHH:MM:SS
+            dateText: "Sábado, 14 de Noviembre de 2026",
+
+            parents: "Roberto Silva & Mariana Mendoza",
+            godparents: "Fernando Morales & Beatriz Silva",
+
+            church: {
+                name: "Catedral Metropolitana",
+                time: "05:00 PM",
+                address: "Av. Reforma #100, Col. Centro, Ciudad de México",
+                mapUrl: "https://maps.google.com/?q=Catedral+Metropolitana+CDMX"
+            },
+
+            reception: {
+                name: "Salón & Garden Real Palace",
+                time: "07:30 PM",
+                address: "Calzada de las Palmas #450, Fracc. El Real, Ciudad de México",
+                mapUrl: "https://maps.google.com/?q=Salon+Real+Palace"
+            },
+
+            dressCode: {
+                title: "Rigurosa Etiqueta / Gala",
+                description: "Vestido largo para damas y traje formal o esmoquin para caballeros."
+            },
+
+            giftRegistryUrl: "https://www.amazon.com",
+
+            bankDetails: {
+                bank: "BBVA México",
+                holder: "Mariana Mendoza (Mamá)",
+                clabe: "0121 8001 9876 5432 10"
+            },
+
+            // CONTACTOS DUALES DE WHATSAPP
+            contact1: {
+                name: "Mariana",
+                role: "Mamá",
+                phone: "5215512345678" // Número con clave de país sin '+'
+            },
+            contact2: {
+                name: "Roberto",
+                role: "Papá",
+                phone: "5215512345679"
+            }
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        // Apply Configuration to HTML
+        function applyConfig() {
+            document.getElementById('cover-quince-name').innerText = CONFIG.quinceName;
+            document.getElementById('hero-quince-name').innerText = CONFIG.quinceName;
+            document.getElementById('footer-quince-name').innerText = CONFIG.quinceName;
+            document.getElementById('hero-quote').innerText = CONFIG.quote;
+
+            document.getElementById('parents-names').innerText = CONFIG.parents;
+            document.getElementById('godparents-names').innerText = CONFIG.godparents;
+
+            // Church
+            document.getElementById('church-name').innerText = CONFIG.church.name;
+            document.getElementById('ceremony-date').innerText = CONFIG.dateText;
+            document.getElementById('church-time').innerText = CONFIG.church.time;
+            document.getElementById('church-address').innerText = CONFIG.church.address;
+            document.getElementById('church-map-link').href = CONFIG.church.mapUrl;
+
+            // Reception
+            document.getElementById('reception-name').innerText = CONFIG.reception.name;
+            document.getElementById('reception-time').innerText = CONFIG.reception.time;
+            document.getElementById('reception-address').innerText = CONFIG.reception.address;
+            document.getElementById('reception-map-link').href = CONFIG.reception.mapUrl;
+
+            // Dress code
+            document.getElementById('dress-code-title').innerText = CONFIG.dressCode.title;
+            document.getElementById('dress-code-desc').innerText = CONFIG.dressCode.description;
+
+            // Gift Registry
+            document.getElementById('gift-store-link').href = CONFIG.giftRegistryUrl;
+
+            // Bank
+            document.getElementById('bank-name').innerText = CONFIG.bankDetails.bank;
+            document.getElementById('bank-holder').innerText = CONFIG.bankDetails.holder;
+            document.getElementById('bank-clabe').innerText = CONFIG.bankDetails.clabe;
+
+            // WhatsApp Contacts
+            document.getElementById('contact1-label-name').innerText = `${CONFIG.contact1.name}`;
+            document.getElementById('contact1-label-role').innerText = CONFIG.contact1.role;
+
+            document.getElementById('contact2-label-name').innerText = `${CONFIG.contact2.name}`;
+            document.getElementById('contact2-label-role').innerText = CONFIG.contact2.role;
+        }
+
+        // Generate Sparkle Particles
+        function createSparkles() {
+            const container = document.getElementById('sparkles-container');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('sparkle-particle');
+                const size = Math.random() * 6 + 3;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 8 + 8}s`;
+                particle.style.animationDelay = `${Math.random() * 4}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        // Open Envelope
+        function openEnvelope() {
+            const envelopeScreen = document.getElementById('envelope-screen');
+            const mainContent = document.getElementById('main-content');
+
+            envelopeScreen.classList.add('open');
+            setTimeout(() => {
+                envelopeScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 800);
+
+            startSoftMusic();
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#B76E79', '#D4AF37', '#E0A9AF', '#ffffff']
+            });
+        }
+
+        // Synthesize celebratory melody using Tone.js
+        function startSoftMusic() {
+            try {
+                Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 1.2, decay: 1, sustain: 0.7, release: 2 }
+                }).toDestination();
+                synth.volume.value = -14;
+
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease(["C5", "E5", "G5"], "2n", time);
+                    synth.triggerAttackRelease(["D5", "F#5", "A5"], "2n", time + 1.8);
+                    synth.triggerAttackRelease(["B4", "D5", "F#5"], "2n", time + 3.6);
+                    synth.triggerAttackRelease(["A4", "C#5", "E5"], "2n", time + 5.4);
+                }, "7s");
+
+                Tone.Transport.bpm.value = 60;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+            } catch (e) {
+                console.log("Audio couldn't auto-start:", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startSoftMusic();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+            }
+        }
+
+        // Countdown Timer
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.dateISO).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-serif text-lg text-glam-gold font-semibold">¡Hoy es el Gran Día de Mis XV Años!</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        // Send RSVP via WhatsApp
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const song = document.getElementById('song-request').value.trim();
+            const message = document.getElementById('message').value.trim();
+            const selectedContact = document.querySelector('input[name="organizer"]:checked').value;
+
+            let targetPhone = CONFIG.contact1.phone;
+            let targetName = CONFIG.contact1.name;
+
+            if (selectedContact === 'contact2') {
+                targetPhone = CONFIG.contact2.phone;
+                targetName = CONFIG.contact2.name;
+            }
+
+            // Clean formatted WhatsApp text
+            let textMessage = `*CONFIRMACIÓN - MIS XV AÑOS (${CONFIG.quinceName.toUpperCase()})* 👑\n\n`;
+            textMessage += `Hola *${targetName}*, confirmo mi asistencia:\n\n`;
+            textMessage += `👤 *Invitado / Familia:* ${name}\n`;
+            textMessage += `✨ *Respuesta:* ${attendance}\n`;
+            textMessage += `🎟️ *Pases:* ${passes}\n`;
+            if (song !== "") {
+                textMessage += `🎵 *Canción sugerida:* ${song}\n`;
+            }
+            if (message !== "") {
+                textMessage += `💬 *Mensaje:* "${message}"\n`;
+            }
+            textMessage += `\n¡Nos vemos en la fiesta! 🎉`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${targetPhone}?text=${encodedMessage}`;
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.5 }
+            });
+
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 500);
+        }
+
+        // Bank Modal
+        function openBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+
+        function closeBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+        }
+
+        function copyBankClabe() {
+            const clabe = CONFIG.bankDetails.clabe;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = clabe;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            // Toast feedback
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-glam-magenta text-white px-5 py-2.5 rounded-full text-xs shadow-2xl z-50 border border-rosegold/40 flex items-center gap-2";
+            toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i> CLABE copiada al portapapeles`;
+            document.body.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => { toast.remove(); }, 2500);
+            closeBankModal();
+        }
+
+        // On Load Initialization
+        window.onload = function () {
+            applyConfig();
+            createSparkles();
+            updateCountdown();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+
+</html>

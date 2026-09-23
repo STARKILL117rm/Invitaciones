@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Shower - Invitación Digital</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tone.js for synth audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Montserrat:wght@400;600;700;800&family=Pacifico&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        baby: {
+                            pink: '#ffb3c6',
+                            brightpink: '#ff85a1',
+                            blue: '#a2d2ff',
+                            brightblue: '#bde0fe',
+                            softyellow: '#ffedd8',
+                            gold: '#f7d070',
+                            darkbg: '#141118',
+                            cardbg: '#1f1b26',
+                            white: '#ffffff'
+                        }
+                    },
+                    fontFamily: {
+                        script: ['Pacifico', 'cursive'],
+                        fun: ['Fredoka', 'sans-serif'],
+                        sans: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: #141118;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Gradient & Glassmorphism Cards */
+        .baby-card {
+            background: rgba(31, 27, 38, 0.9);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 179, 198, 0.4);
+            box-shadow: 0 0 20px rgba(255, 179, 198, 0.2);
+        }
+
+        .baby-card-blue {
+            background: rgba(31, 27, 38, 0.9);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(162, 210, 255, 0.4);
+            box-shadow: 0 0 20px rgba(162, 210, 255, 0.2);
+        }
+
+        .baby-card-gold {
+            background: rgba(31, 27, 38, 0.9);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(247, 208, 112, 0.5);
+            box-shadow: 0 0 20px rgba(247, 208, 112, 0.2);
+        }
+
+        /* Dual Glow Text */
+        .neon-dual-text {
+            text-shadow: 0 0 10px #ffb3c6, 0 0 20px #a2d2ff;
+        }
+
+        /* Floating Stars / Bubbles */
+        @keyframes floatStar {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0.2;
+            }
+
+            50% {
+                opacity: 0.9;
+            }
+
+            100% {
+                transform: translateY(-100vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        .floating-star {
+            position: absolute;
+            pointer-events: none;
+            border-radius: 50%;
+            animation: floatStar 7s linear infinite;
+        }
+
+        @media (max-width: 360px) {
+            html {
+                font-size: 13px;
+            }
+
+            #cover-title,
+            #hero-title {
+                font-size: 2.8rem !important;
+            }
+
+            .baby-card,
+            .baby-card-blue,
+            .baby-card-gold {
+                padding: 1rem !important;
+            }
+        }
+
+        @media (min-width: 481px) and (max-width: 900px) {
+            #main-content {
+                max-width: 100% !important;
+                border-left: none !important;
+                border-right: none !important;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            #main-content {
+                max-width: 700px !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen relative flex flex-col items-center justify-between selection:bg-baby-pink selection:text-black">
+
+    <!-- Floating Bubbles Container -->
+    <div id="stars-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Music Control Floating Toggle Button -->
+    <button id="music-toggle" onclick="toggleAudio()" aria-label="Música Baby Shower"
+        class="fixed top-5 right-5 z-50 bg-gradient-to-r from-baby-pink to-baby-blue text-stone-900 p-3 rounded-full shadow-2xl border-2 border-white transition-all duration-300 transform hover:scale-110 flex items-center justify-center w-12 h-12">
+        <i data-lucide="music" class="w-5 h-5 text-stone-900"></i>
+    </button>
+
+    <!-- INTRO COVER SCREEN -->
+    <div id="intro-screen"
+        class="fixed inset-0 z-40 bg-baby-darkbg flex flex-col items-center justify-center p-4 transition-all duration-700 border-b-4 border-baby-pink">
+
+        <div class="text-center mb-6 px-4">
+            <!-- Icon -->
+            <div
+                class="w-20 h-20 mx-auto mb-3 bg-gradient-to-tr from-baby-pink/30 to-baby-blue/30 rounded-full flex items-center justify-center border-2 border-baby-gold shadow-[0_0_25px_rgba(255,179,198,0.5)]">
+                <i data-lucide="baby" class="w-10 h-10 text-baby-gold"></i>
+            </div>
+
+            <p class="font-sans text-[10px] text-baby-blue tracking-widest uppercase mb-2">★ TE INVITAMOS A CELEBRAR ★
+            </p>
+            <h1 id="cover-title" class="font-script text-5xl md:text-6xl text-white neon-dual-text">
+                Baby Shower
+            </h1>
+            <p class="font-fun text-sm text-baby-pink mt-2">¡La dulce espera de nuestro bebé!</p>
+        </div>
+
+        <!-- Start Button Pass -->
+        <div class="w-full max-w-sm cursor-pointer group px-4 text-center" onclick="openInvitation()">
+            <div
+                class="baby-card rounded-3xl p-6 text-center shadow-2xl group-hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+
+                <div class="relative z-10">
+                    <div
+                        class="inline-block px-3 py-1 rounded-full bg-gradient-to-r from-baby-pink/30 to-baby-blue/30 text-white text-[10px] font-sans font-bold mb-4 border border-white/40">
+                        PASE ESPECIAL DE INVITADO
+                    </div>
+
+                    <h3 class="font-fun text-xl font-bold text-white mb-1">¡Acompáñanos en este gran día!</h3>
+                    <p class="text-xs text-gray-300 mb-6">Toca el botón para abrir la invitación</p>
+
+                    <div
+                        class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-baby-pink via-baby-gold to-baby-blue text-stone-900 font-fun text-sm font-bold rounded-2xl shadow-xl tracking-wider uppercase transform transition hover:scale-105">
+                        <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        <span>ABRIR INVITACIÓN</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INVITATION CONTENT -->
+    <main id="main-content"
+        class="w-full max-w-md md:max-w-xl mx-auto min-h-screen bg-baby-darkbg shadow-2xl relative z-10 opacity-0 transition-opacity duration-1000 overflow-hidden border-x-2 border-baby-pink/30">
+
+        <!-- HERO SECTION -->
+        <section
+            class="relative min-h-[75vh] flex flex-col justify-between items-center text-center p-6 bg-cover bg-center overflow-hidden"
+            style="background-image: linear-gradient(to bottom, rgba(20,17,24,0.5), rgba(20,17,24,0.95)), url('https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1000&q=80');">
+
+            <div class="my-auto py-6 relative z-10">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-baby-pink/80 to-baby-blue/80 backdrop-blur-md text-[11px] font-sans text-stone-900 font-bold mb-4 border border-white shadow-lg">
+                    <i data-lucide="heart" class="w-4 h-4 text-stone-900 fill-stone-900"></i>
+                    <span>BABY SHOWER ESPECIAL</span>
+                </div>
+
+                <h1 id="hero-title"
+                    class="font-script text-6xl md:text-7xl text-white my-2 leading-none neon-dual-text">
+                    Baby Shower
+                </h1>
+
+                <div
+                    class="inline-block mt-2 px-6 py-2 bg-gradient-to-r from-baby-pink to-baby-blue rounded-2xl border-2 border-white shadow-lg">
+                    <span id="hero-subtitle-text"
+                        class="font-fun text-base font-bold text-stone-900 tracking-wider">¡ESPERANDO A NUESTRO
+                        BEBÉ!</span>
+                </div>
+
+                <p id="hero-quote"
+                    class="font-fun text-sm md:text-base mt-5 max-w-xs mx-auto leading-relaxed font-medium text-baby-softyellow">
+                    "Un pequeño milagro está en camino para llenar nuestras vidas de amor y alegría. Queremos compartir
+                    esta felicidad contigo."
+                </p>
+            </div>
+
+            <!-- Scroll indicator -->
+            <div class="pb-2 animate-bounce text-baby-gold">
+                <i data-lucide="chevron-down" class="w-8 h-8 mx-auto"></i>
+            </div>
+        </section>
+
+        <!-- COUNTDOWN TIMER SECTION -->
+        <section class="px-6 py-8 text-center border-y-2 border-baby-pink/30 bg-baby-cardbg/80 relative">
+            <h2 class="font-sans text-[11px] text-baby-blue tracking-widest uppercase mb-1 font-bold">DULCE ESPERA</h2>
+            <p class="font-fun text-2xl font-bold text-white mb-5">Nos Veremos En:</p>
+
+            <div id="countdown" class="grid grid-cols-4 gap-2 md:gap-3 max-w-sm mx-auto">
+                <div class="baby-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="days" class="font-fun text-2xl font-bold text-baby-pink">00</span>
+                    <span class="text-[9px] font-sans text-gray-300 mt-1 uppercase font-bold">Días</span>
+                </div>
+                <div class="baby-card-blue rounded-2xl p-3 flex flex-col items-center">
+                    <span id="hours" class="font-fun text-2xl font-bold text-baby-blue">00</span>
+                    <span class="text-[9px] font-sans text-gray-300 mt-1 uppercase font-bold">Horas</span>
+                </div>
+                <div class="baby-card rounded-2xl p-3 flex flex-col items-center">
+                    <span id="minutes" class="font-fun text-2xl font-bold text-baby-pink">00</span>
+                    <span class="text-[9px] font-sans text-gray-300 mt-1 uppercase font-bold">Min</span>
+                </div>
+                <div class="baby-card-blue rounded-2xl p-3 flex flex-col items-center">
+                    <span id="seconds" class="font-fun text-2xl font-bold text-baby-blue">00</span>
+                    <span class="text-[9px] font-sans text-gray-300 mt-1 uppercase font-bold">Seg</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- PARENTS SECTION -->
+        <section class="px-6 py-8 space-y-6">
+            <div class="baby-card-gold rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-baby-gold/20 flex items-center justify-center text-baby-gold mb-3 border border-baby-gold">
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <span class="font-sans text-[10px] text-baby-blue uppercase tracking-wider font-bold">FUTUROS
+                    PAPÁS</span>
+                <p id="parents-names" class="font-fun text-2xl font-bold text-white mt-1">Sofia & Carlos</p>
+                <p class="text-xs text-gray-300 mt-1">¡Estamos muy emocionados de recibirte en nuestra celebración!</p>
+            </div>
+
+            <!-- LOCATION SECTION -->
+            <div class="baby-card rounded-3xl p-6 text-center border-t-4 border-baby-pink">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-baby-pink/30 flex items-center justify-center text-baby-pink mb-3">
+                    <i data-lucide="home" class="w-6 h-6"></i>
+                </div>
+                <span class="font-sans text-[10px] text-baby-pink uppercase tracking-wider font-bold">LUGAR DEL
+                    EVENTO</span>
+                <h3 id="reception-name" class="font-fun text-2xl font-bold my-1 text-white">Salón / Nuestra Casa</h3>
+
+                <p id="event-date" class="text-xs font-fun text-baby-gold my-2 text-base font-bold">Sábado, 5 de
+                    Diciembre, 2026</p>
+
+                <div
+                    class="flex justify-center items-center gap-2 text-xs text-white my-3 bg-baby-darkbg/80 py-2 px-4 rounded-full w-fit mx-auto border border-baby-pink/50">
+                    <i data-lucide="clock" class="w-4 h-4 text-baby-blue"></i>
+                    <span id="reception-time">04:00 PM</span>
+                </div>
+
+                <p id="reception-address" class="text-xs text-gray-300 mb-5 leading-relaxed">Av. de las Flores #456,
+                    Col. Jardines, Ciudad de México</p>
+
+                <!-- MAP BUTTON -->
+                <a id="reception-map-link" href="#" target="_blank" rel="noopener noreferrer"
+                    class="inline-flex items-center justify-center gap-2 w-full py-3.5 px-5 bg-gradient-to-r from-baby-pink to-baby-blue text-stone-900 text-xs font-sans font-bold uppercase rounded-xl transition duration-300 shadow-lg group">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-stone-900 group-hover:animate-bounce"></i>
+                    <span>VER UBICACIÓN EN GOOGLE MAPS</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ITINERARY / TIMELINE -->
+        <section class="px-6 py-8 bg-baby-cardbg/50 border-y-2 border-baby-pink/30">
+            <h2 class="font-sans text-[10px] text-baby-blue tracking-widest text-center uppercase mb-1 font-bold">
+                MOMENTOS ESPECIALES</h2>
+            <p class="font-fun text-2xl font-bold text-white text-center mb-6">Itinerario del Evento</p>
+
+            <div class="relative border-l-2 border-baby-gold/50 ml-4 md:ml-8 space-y-6">
+                <!-- Step 1 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-baby-pink border-2 border-baby-darkbg">
+                    </div>
+                    <span class="font-sans text-[10px] text-baby-blue font-bold">04:00 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Bienvenida & Snack Bar</h4>
+                    <p class="text-xs text-gray-300">Recepción de invitados, mesa de dulces y fotos.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-baby-blue border-2 border-baby-darkbg">
+                    </div>
+                    <span class="font-sans text-[10px] text-baby-blue font-bold">05:00 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Juegos Dinámicos de Baby Shower</h4>
+                    <p class="text-xs text-gray-300">Actividades divertidas, concursos y premios.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-baby-pink border-2 border-baby-darkbg">
+                    </div>
+                    <span class="font-sans text-[10px] text-baby-blue font-bold">06:30 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Merienda & Comida</h4>
+                    <p class="text-xs text-gray-300">Tiempo para disfrutar de la cena y refrescos.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="relative pl-6">
+                    <div
+                        class="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-baby-gold border-2 border-baby-darkbg">
+                    </div>
+                    <span class="font-sans text-[10px] text-baby-blue font-bold">07:30 PM</span>
+                    <h4 class="font-fun text-lg font-bold text-white">Pastel & Agradecimientos</h4>
+                    <p class="text-xs text-gray-300">Corte del pastel y momentos con los papás.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- GIFTS & SUGGESTIONS -->
+        <section class="px-6 py-8 space-y-6">
+            <div class="baby-card-gold rounded-3xl p-6 text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-baby-gold/20 flex items-center justify-center text-baby-gold mb-3">
+                    <i data-lucide="gift" class="w-6 h-6"></i>
+                </div>
+                <h3 class="font-fun text-xl font-bold mb-1 text-white">Sugerencia de Regalos</h3>
+                <p class="text-xs text-gray-300 mb-4">
+                    Tu presencia es nuestro mejor regalo. Si deseas obsequiarnos algo adicional, te sugerimos pañales
+                    (cualquier etapa), ropa o apoyo mediante transferencia:
+                </p>
+                <div class="flex flex-col gap-3">
+                    <button onclick="openBankModal()"
+                        class="w-full py-3.5 px-4 bg-baby-darkbg/90 border border-baby-gold/50 hover:border-baby-gold rounded-xl text-xs text-white flex items-center justify-between transition shadow-md">
+                        <span class="flex items-center gap-2">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-baby-gold"></i>
+                            <span class="font-fun font-bold">Lluvia de Sobres / Transferencia</span>
+                        </span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-baby-blue"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHATSAPP RSVP FORM -->
+        <section class="px-6 py-10 bg-baby-pink/10">
+            <div class="max-w-md mx-auto text-center">
+                <div
+                    class="w-12 h-12 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3 border border-emerald-500">
+                    <i data-lucide="message-circle" class="w-6 h-6"></i>
+                </div>
+                <h2 class="font-fun text-2xl font-bold text-white mb-1">Confirmar Asistencia</h2>
+                <p class="text-xs text-gray-300 mb-6">Por favor confirma tu lugar antes del 20 de Noviembre</p>
+
+                <form id="rsvp-form" onsubmit="sendRSVP(event)" class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-[11px] font-sans font-bold text-baby-blue uppercase mb-1">Nombre
+                            Completo / Familia *</label>
+                        <input type="text" id="guest-name" required placeholder="Ej. Familia Ramírez López"
+                            class="w-full px-4 py-3 rounded-xl bg-baby-darkbg border border-baby-pink/50 focus:ring-2 focus:ring-baby-gold text-white outline-none text-sm transition">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label
+                                class="block text-[11px] font-sans font-bold text-baby-blue uppercase mb-1">¿Asistirás?
+                                *</label>
+                            <select id="attendance" required
+                                class="w-full px-4 py-3 rounded-xl bg-baby-darkbg border border-baby-pink/50 focus:ring-2 focus:ring-baby-gold text-white outline-none text-sm transition">
+                                <option value="¡Sí, ahí estaré acompañándolos!">¡Sí, confirmo!</option>
+                                <option value="Lo siento, no podré asistir">No podré asistir</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[11px] font-sans font-bold text-baby-blue uppercase mb-1">Asistentes</label>
+                            <select id="passes"
+                                class="w-full px-4 py-3 rounded-xl bg-baby-darkbg border border-baby-pink/50 focus:ring-2 focus:ring-baby-gold text-white outline-none text-sm transition">
+                                <option value="1 Persona">1 Persona</option>
+                                <option value="2 Personas">2 Personas</option>
+                                <option value="Familia (3+ integrantes)">Familia (3+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-sans font-bold text-baby-blue uppercase mb-1">Mensaje para
+                            el bebé / Papás 🍼</label>
+                        <input type="text" id="child-note" placeholder="Ej. ¡Felicidades! Que sea una hermosa etapa."
+                            class="w-full px-4 py-3 rounded-xl bg-baby-darkbg border border-baby-pink/50 focus:ring-2 focus:ring-baby-gold text-white outline-none text-sm transition">
+                    </div>
+
+                    <!-- SUBMIT BUTTON -->
+                    <button type="submit"
+                        class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-sans font-bold rounded-xl shadow-lg transition duration-300 flex items-center justify-center gap-2 text-xs uppercase tracking-widest mt-4">
+                        <i data-lucide="message-circle" class="w-4 h-4"></i>
+                        <span>CONFIRMAR POR WHATSAPP</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-8 text-center bg-baby-darkbg border-t-2 border-baby-pink/30 text-white px-4">
+            <p id="footer-title" class="font-script text-3xl text-baby-pink">Baby Shower</p>
+            <p class="font-sans text-[10px] text-baby-blue mt-1 font-bold">★ CELEBRANDO LA LLEGADA DE NUESTRO BEBÉ ★</p>
+        </footer>
+
+    </main>
+
+    <!-- BANK DETAILS MODAL -->
+    <div id="bank-modal"
+        class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="baby-card-gold rounded-3xl p-6 max-w-sm w-full text-center relative shadow-2xl transform scale-95 transition-transform duration-300"
+            id="bank-modal-card">
+            <button onclick="closeBankModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div
+                class="w-12 h-12 mx-auto rounded-full bg-baby-gold/20 flex items-center justify-center text-baby-gold mb-3 border border-baby-gold">
+                <i data-lucide="building-2" class="w-6 h-6"></i>
+            </div>
+            <h3 class="font-fun text-xl font-bold mb-1 text-white">Datos Bancarios</h3>
+            <p class="text-xs text-gray-300 mb-4">Transferencia o regalo para el bebé:</p>
+
+            <div class="bg-baby-darkbg/90 rounded-2xl p-4 text-left text-xs space-y-3 border border-baby-gold/30 mb-4">
+                <div>
+                    <span class="text-baby-blue block text-[10px] font-sans font-bold uppercase">Banco</span>
+                    <span id="bank-name" class="font-semibold text-white">BBVA México</span>
+                </div>
+                <div>
+                    <span class="text-baby-blue block text-[10px] font-sans font-bold uppercase">Titular</span>
+                    <span id="bank-holder" class="font-semibold text-white">Sofia M. (Mamá)</span>
+                </div>
+                <div>
+                    <span class="text-baby-blue block text-[10px] font-sans font-bold uppercase">CLABE
+                        Interbancaria</span>
+                    <span id="bank-clabe" class="font-mono font-bold text-baby-gold">0121 8001 2345 6789 01</span>
+                </div>
+            </div>
+
+            <button onclick="copyBankClabe()"
+                class="w-full py-3.5 bg-gradient-to-r from-baby-pink to-baby-blue text-stone-900 font-sans font-bold text-xs uppercase rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                <i data-lucide="copy" class="w-4 h-4"></i>
+                <span>COPIAR CLABE</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const CONFIG = {
+            parents: "Sofia & Carlos",
+            quote: '"Un pequeño milagro está en camino para llenar nuestras vidas de amor y alegría. Queremos compartir esta felicidad contigo."',
+            dateISO: "2026-12-05T16:00:00",
+            dateText: "Sábado, 5 de Diciembre de 2026",
+
+            reception: {
+                name: "Salón de Eventos / Nuestra Casa",
+                time: "04:00 PM",
+                address: "Av. de las Flores #456, Col. Jardines, Ciudad de México",
+                mapUrl: "https://maps.google.com/?q=Baby+Shower+Event"
+            },
+
+            bankDetails: {
+                bank: "BBVA México",
+                holder: "Sofia M.",
+                clabe: "0121 8001 2345 6789 01"
+            },
+
+            phoneWhatsApp: "5215512345678" // Número a donde llega la confirmación
+        };
+
+        let audioSynth = null;
+        let isPlaying = false;
+
+        function applyConfig() {
+            document.getElementById('parents-names').innerText = CONFIG.parents;
+            document.getElementById('hero-quote').innerText = CONFIG.quote;
+            document.getElementById('event-date').innerText = CONFIG.dateText;
+
+            // Reception
+            document.getElementById('reception-name').innerText = CONFIG.reception.name;
+            document.getElementById('reception-time').innerText = CONFIG.reception.time;
+            document.getElementById('reception-address').innerText = CONFIG.reception.address;
+            document.getElementById('reception-map-link').href = CONFIG.reception.mapUrl;
+
+            // Bank
+            document.getElementById('bank-name').innerText = CONFIG.bankDetails.bank;
+            document.getElementById('bank-holder').innerText = CONFIG.bankDetails.holder;
+            document.getElementById('bank-clabe').innerText = CONFIG.bankDetails.clabe;
+        }
+
+        function createBubbles() {
+            const container = document.getElementById('stars-container');
+            const colors = ['#ffb3c6', '#a2d2ff', '#ffedd8'];
+            for (let i = 0; i < 25; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('floating-star');
+                const size = Math.random() * 8 + 4;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                bubble.style.left = `${Math.random() * 100}%`;
+                bubble.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                bubble.style.animationDelay = `${Math.random() * 3}s`;
+                container.appendChild(bubble);
+            }
+        }
+
+        function openInvitation() {
+            const introScreen = document.getElementById('intro-screen');
+            const mainContent = document.getElementById('main-content');
+
+            introScreen.style.transform = 'translateY(-100vh)';
+            setTimeout(() => {
+                introScreen.style.display = 'none';
+                mainContent.classList.remove('opacity-0');
+                mainContent.classList.add('opacity-100');
+            }, 700);
+
+            startLullabyAudio();
+
+            confetti({
+                particleCount: 120,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#ffb3c6', '#a2d2ff', '#f7d070', '#ffffff']
+            });
+        }
+
+        function startLullabyAudio() {
+            try {
+                Tone.start();
+                const synth = new Tone.Synth({
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.1, decay: 0.3, sustain: 0.4, release: 0.8 }
+                }).toDestination();
+                synth.volume.value = -16;
+
+                // Soft soothing lullaby melody
+                const notes = ["C4", "E4", "G4", "C5", "B4", "G4", "A4", "F4"];
+                let step = 0;
+
+                const loop = new Tone.Loop((time) => {
+                    synth.triggerAttackRelease(notes[step % notes.length], "4n", time);
+                    step++;
+                }, "0.5s");
+
+                Tone.Transport.bpm.value = 85;
+                Tone.Transport.start();
+                loop.start(0);
+
+                audioSynth = { synth, loop };
+                isPlaying = true;
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        function toggleAudio() {
+            if (!audioSynth) {
+                startLullabyAudio();
+                return;
+            }
+            if (isPlaying) {
+                Tone.Transport.stop();
+                isPlaying = false;
+            } else {
+                Tone.Transport.start();
+                isPlaying = true;
+            }
+        }
+
+        function updateCountdown() {
+            const eventTime = new Date(CONFIG.dateISO).getTime();
+            const now = new Date().getTime();
+            const diff = eventTime - now;
+
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `<div class="col-span-4 text-center font-fun text-base text-baby-gold">¡HOY ES EL GRAN DÍA! 👶🎉</div>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+
+        function sendRSVP(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('guest-name').value.trim();
+            const attendance = document.getElementById('attendance').value;
+            const passes = document.getElementById('passes').value;
+            const note = document.getElementById('child-note').value.trim();
+
+            let textMessage = `*CONFIRMACIÓN - BABY SHOWER* 🍼👶\n\n`;
+            textMessage += `¡Hola! Confirmo mi asistencia al evento:\n\n`;
+            textMessage += `👤 *Invitado / Familia:* ${name}\n`;
+            textMessage += `✨ *Respuesta:* ${attendance}\n`;
+            textMessage += `🎟️ *Asistentes:* ${passes}\n`;
+            if (note !== "") {
+                textMessage += `💌 *Mensaje:* ${note}\n`;
+            }
+            textMessage += `\n¡Con muchas ganas de celebrar juntos este momento tan especial! 💕`;
+
+            const encodedMessage = encodeURIComponent(textMessage);
+            const whatsappUrl = `https://wa.me/${CONFIG.phoneWhatsApp}?text=${encodedMessage}`;
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.5 }
+            });
+
+            setTimeout(() => {
+                window.open(whatsappUrl, '_blank');
+            }, 400);
+        }
+
+        function openBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+
+        function closeBankModal() {
+            const modal = document.getElementById('bank-modal');
+            const card = document.getElementById('bank-modal-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+        }
+
+        function copyBankClabe() {
+            const clabe = CONFIG.bankDetails.clabe;
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = clabe;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-baby-pink text-stone-900 px-5 py-2.5 rounded-full text-xs font-sans font-bold shadow-2xl z-50 border border-white flex items-center gap-2";
+            toast.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4 text-emerald-700"></i> CLABE COPIADA CON ÉXITO`;
+            document.body.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => { toast.remove(); }, 2500);
+            closeBankModal();
+        }
+
+        window.onload = function () {
+            applyConfig();
+            createBubbles();
+            updateCountdown();
+            lucide.createIcons();
+        };
+    </script>
+</body>
+
+</html>
